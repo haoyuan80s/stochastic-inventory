@@ -1,0 +1,106 @@
+\documentclass{beamer}
+\usetheme{Amsterdam}
+
+\title{Approximation Algorithms for stochastic Inventory Control Models}
+\subtitle{A periodic-review stochastic inventory control problem}
+\author{Hao Yuan, Feng Wei, Blake Miller}
+\date{\today}
+
+\begin{document}
+  \frame{\titlepage}
+  \section{The Periodic-Review Stochastic Inventory Control Problem}
+  \subsection{General Concepts}
+  \begin{frame}
+    \frametitle{The Periodic-Review Stochastic Inventory Control Problem}
+    \begin{itemize}
+      \item Computing a provably efficient inventory control policies is difficult
+      \item This is due to the nature of demand:
+        \begin{itemize}
+          \item correlated
+          \item non-stationary (time-dependent)
+          \item evolving
+        \end{itemize}
+      \item Important for any company that seeks to minimize cost of holding excess inventory while minimizing backorder costs (unmet demand)
+      \item Particularly important in industries where the demand environment is highly dynamic. (i.e. Apple's supply-chain for solid state drives, seasonal products such as rock salt)
+      \item These environments experience high correlation between demands in different periods (difficult to compute optimal inventory policy).
+    \end{itemize}
+  \end{frame}
+
+  \section{Expected Cost Function}
+  \subsection{Parameters}
+  \begin{frame}
+    \frametitle{Expected Cost Function and Parameters}
+    \Large
+    \[c_{t}\left(q_{t}\right)+E\left[h_{t}\left(x_{t}+q_{t}-D_{t}\right)^{+}+p_{t}\left(x_{t}+q_{t}-D_{t}\right)^{-}\right]\]
+    \normalsize
+    \begin{itemize}
+      \item $h_{t}\left(x_{t}+q_{t}-D_{t}\right)^{+} \text{is holding cost}$
+      \item $p_{t}\left(x_{t}+q_{t}-D_{t}\right)^{-} \text{is backlogging cost}$
+      \item $x_{t}$ is inventory position (how much inventory you have in stock and on order)
+      \item Cost periods $t,\cdots,T$
+      \item $Q_{t}$ is the amount of product
+      \item $D_{t}$ is the demand for the product (random)
+      \item $c_{t}\left(q_{t}\right) \text{ is production cost}$
+    \end{itemize}
+  \end{frame}
+  \subsection{Computational Challenges}
+  \begin{frame}
+  \frametitle{Computational Challenges}
+
+  In the periodic-review stochastic inventory control problem, the cost consists of a per-unit, time-dependent ordering cost, a per-unit holding cost for carrying excess inventory from period to period, and a per-unit backlogging cost, which is a penalty we incur for each unit of unsatisfied demand (where all shortages are fully backlogged). In addition, there is a lead time between the time an order is placed and the time that it actually arrives
+
+  \end{frame}
+
+  \section{The Algorithm and Computational Approaches}
+    \subsection{Dynamic Programming}
+    \begin{frame}
+    \frametitle{Dynamic Programming}
+      \begin{eqnarray*}
+      V_{t}\left(x_{t}\right) & = & \min_{q_{t}\geq0}c_{t}\left(q_{t}\right)+E\left[h_{t}\left(x_{t}+q_{t}-D_{t}\right)^{+}+p_{t}\left(x_{t}+q_{t}-D_{t}\right)^{-}\right]\\
+       &  & + E\left[V_{t+1}\left(x_{t}+q_{t}-D_{t}\right)\right]
+      \end{eqnarray*}
+      \begin{itemize}
+        \item Let $V_{t}\left(x_{t}\right)$ be the optimal expected cost over over periods $t=t,\cdots,T.$
+        \item Using dynamic programming, we can solve each $V_{t}$
+        \item This approach would be accurate if it were feasible, but the term $E\left[V_{t+1}\left(x_{t}+q_{t}-D_{t}\right)\right]$ is very difficult to compute.
+      \end{itemize}
+    \end{frame}
+
+    \subsection{Myopic (Na{\"i}ve) Approach}
+    \begin{frame}
+    \frametitle{Myopic (Na{\"i}ve) Approach}
+
+    \end{frame}
+
+    \subsection{Dual-Balancing Problem}
+    \begin{frame}
+    \frametitle{Dual-Balancing Problem}
+
+    \end{frame}
+
+    \subsection{Why Dual-Balancing?}
+    \begin{frame}
+    \frametitle{Why Dual-Balancing?}
+
+    \end{frame}
+  \section{Coding and Implementation}
+    \subsection{Coding and Implementation}
+    \begin{frame}
+    \frametitle{Coding and Implementation}
+
+    \end{frame}
+  \section{Results}
+    \subsection{Results}
+    \begin{frame}
+
+    \frametitle{Results}
+
+    \end{frame}
+  \section{Open Problems and Challenges in the Field of Stochastic Inventory Control}
+    \subsection{Open Problems and Challenges in the Field of Stochastic Inventory Control}
+    \begin{frame}
+    \frametitle{Open Problems and Challenges in the Field of Stochastic Inventory Control}
+
+    \end{frame}
+
+\end{document}
