@@ -3,7 +3,7 @@
 \renewcommand\useanchorwidth{T}
 \usepackage{xcolor}
 \def\theyearwidth{1.5pt}
-\def\mystrut{\rule{0ex}{1ex}}
+\def\mystrut{\rule{0ex}{.1ex}}
 \def\myyrstrut{\rule[-1ex]{0ex}{2ex}}
 \newlength\yrsfboxrule
 \yrsfboxrule .4\fboxrule
@@ -69,7 +69,7 @@
   \begin{frame}
   \frametitle{Computational Challenges}
   \vspace{0.5in}\par
-    {\centering\yearwidth{0.8pt}\tclap{\tiny t}\showyear{1}\skipyears[gray]{.3in}\showyear{2}\skipyears[gray]{.3in}\showyear{3}\skipyears[gray]{.3in}\showyear{4}\skipyears[gray]{.3in}\showyear{5}\skipyears[gray]{.3in}\showyear{6}\skipyears[gray]{.3in}$\text{  }\cdots\text{  }$\showyear{$T-1$}\skipyears[gray]{.3in}\showyear{$T$}
+    {\centering\yearwidth{0.8pt}\tclap{\tiny t}\showyear{1}\skipyears[black]{.3in}\showyear{2}\skipyears[black]{.3in}\showyear{3}\skipyears[black]{.3in}\showyear{4}\skipyears[black]{.3in}\showyear{5}\skipyears[black]{.3in}\showyear{6}\skipyears[black]{.3in}$\text{  }\cdots\text{  }$\showyear{$T-1$}\skipyears[black]{.3in}\showyear{$T$}
   \par}
   In the periodic-review stochastic inventory control problem, the cost consists of a per-unit, time-dependent ordering cost, a per-unit holding cost for carrying excess inventory from period to period, and a per-unit backlogging cost, which is a penalty we incur for each unit of unsatisfied demand (where all shortages are fully backlogged). In addition, there is a lead time between the time an order is placed and the time that it actually arrives
 
@@ -93,13 +93,14 @@
     \subsection{Myopic (Na{\"i}ve) Approach}
     \begin{frame}
     \frametitle{Myopic (Na{\"i}ve) Approach}
-
+      The myopic approach focuses only on minimizing the expected immediate cost that is going to be incurred in each period, while ignoring the cost over the rest of the horizon.
     \end{frame}
 
     \subsection{Dual-Balancing Problem}
     \begin{frame}
     \frametitle{Dual-Balancing Problem}
-
+      \[H_t^B(Q_t):=\sum\limits_{j=t+L}^T h_j(Q_t-(D_{[t,j]}-X_t)^+)^+\]
+      \[\Pi_t^B:=p_t(D_{[t,t+L]}-(X_t^B+Q_t))^+=p_t(D_{[t,t+L]}-Y_t^B)^+\]
     \end{frame}
 
     \subsection{Why Dual-Balancing?}
