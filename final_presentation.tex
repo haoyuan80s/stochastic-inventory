@@ -1,4 +1,26 @@
 \documentclass{beamer}
+\usepackage{stackengine}
+\renewcommand\useanchorwidth{T}
+\usepackage{xcolor}
+\def\theyearwidth{1.5pt}
+\def\mystrut{\rule{0ex}{1ex}}
+\def\myyrstrut{\rule[-1ex]{0ex}{2ex}}
+\newlength\yrsfboxrule
+\yrsfboxrule .4\fboxrule
+\newcommand\yearwidth[1]{\def\theyearwidth{#1}\ignorespaces}
+\newcommand\skipyears[2][black]{%
+  \fboxrule\yrsfboxrule%
+  \fboxsep=-\yrsfboxrule%
+  \fcolorbox{#1}{#1}{\mystrut\hspace{#2}}%
+  \ignorespaces%
+}
+\newcommand\showyear[2][black]{%
+  \fboxsep=0pt%
+  \stackunder[2pt]{%
+    \colorbox{#1}{\myyrstrut\hspace{\theyearwidth}}%
+  }{\tiny#2}%
+  \ignorespaces%
+}
 \usetheme{Amsterdam}
 
 \title{Approximation Algorithms for stochastic Inventory Control Models}
@@ -46,7 +68,9 @@
   \subsection{Computational Challenges}
   \begin{frame}
   \frametitle{Computational Challenges}
-
+  \vspace{0.5in}\par
+    {\centering\yearwidth{0.8pt}\tclap{\tiny t}\showyear{1}\skipyears[gray]{.3in}\showyear{2}\skipyears[gray]{.3in}\showyear{3}\skipyears[gray]{.3in}\showyear{4}\skipyears[gray]{.3in}\showyear{5}\skipyears[gray]{.3in}\showyear{6}\skipyears[gray]{.3in}$\text{  }\cdots\text{  }$\showyear{$T-1$}\skipyears[gray]{.3in}\showyear{$T$}
+  \par}
   In the periodic-review stochastic inventory control problem, the cost consists of a per-unit, time-dependent ordering cost, a per-unit holding cost for carrying excess inventory from period to period, and a per-unit backlogging cost, which is a penalty we incur for each unit of unsatisfied demand (where all shortages are fully backlogged). In addition, there is a lead time between the time an order is placed and the time that it actually arrives
 
   \end{frame}
