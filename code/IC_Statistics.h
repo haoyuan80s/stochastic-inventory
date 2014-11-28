@@ -5,7 +5,7 @@ using namespace std;
 
 template<class W>
 class samples{
-	int a;
+	
 };
 
 

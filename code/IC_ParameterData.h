@@ -7,7 +7,7 @@ using namespace std;
 
 //ParameterData is a class of given parameter for our inventory control problem
 class ParameterData{
-protected:
+public:
 	//The following are the parameters that we are going to specify before doing the optimization problem
 	//Planning Horizon
 	int T;
@@ -22,14 +22,14 @@ protected:
 	//Discount rate
 	double alpha;
 
-public:
+
 	//Constructors
 	//Default Constructor
 	ParameterData();
 	//Constructor assigning constant cost coefficient
-	ParameterData(int vT,int vL,double vc,double vh,double vp);
+	ParameterData(int vT,int vL,double vc,double vh,double vp,double valpha);
 	//general constructor
-	ParameterData(int vT,int vL,vector<double> vc,vector<double> vh,vector<double> vp);
+	ParameterData(int vT,int vL,vector<double> vc,vector<double> vh,vector<double> vp,double valpha);
 
 	//Ouput the parameters
 	int output();
@@ -47,11 +47,11 @@ ParameterData::ParameterData(){
 	p.push_back(0);
 }
 
-ParameterData::ParameterData(int vT,int vL,double vc,double vh,double vp){
+ParameterData::ParameterData(int vT,int vL,double vc,double vh,double vp,double valpha){
 	int i;
 	T=vT;
 	L=vL;
-	alpha=1;
+	alpha=valpha;
 
 	c.push_back(0);
 	h.push_back(0);
@@ -64,11 +64,11 @@ ParameterData::ParameterData(int vT,int vL,double vc,double vh,double vp){
 	}
 }
 
-ParameterData::ParameterData(int vT,int vL,vector<double> vc,vector<double> vh,vector<double> vp){
+ParameterData::ParameterData(int vT,int vL,vector<double> vc,vector<double> vh,vector<double> vp,double valpha){
 	int i;
 	T=vT;
 	L=vL;
-	alpha=1;
+	alpha=valpha;
 	
 	c.push_back(0);
 	h.push_back(0);

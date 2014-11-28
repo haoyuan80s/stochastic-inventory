@@ -2,8 +2,17 @@
 #define IC_POLICY_H
 #include"IC_ParameterData.h"
 #include<fstream>
-#include<string>
+#include<algorithm>
 using namespace std;
+
+template<class W> class Policy;
+template<class W> vector<double> ConditionalExp(W y,Policy<W> &policy);
+template<class W> int RandomDemand(Policy<W> &policy);
+template<class W> int DualBalancing (Policy<W>& P);
+template<class W> int Myopic (Policy<W>& P);
+template<class W> int DP (Policy<W>& P);
+
+template<class W> class samples;
 
 //Policy is a class saving result and sample path for different algorithm approaches
 template <class W>
@@ -18,6 +27,8 @@ public:
 	int randomness;
 	//rand_para include all the parameter for the distribution of the random process 
 	vector<double> rand_para;
+	//whether W is integer type
+	int is_integer;
 
 	//Current time period that we already know the inventory position, demand and ordering.
 	int cur;
@@ -57,9 +68,9 @@ public:
 	//Default Constructor
 	Policy();
 	//Constructor assigning constant cost coefficient
-	Policy(int vT,int vL,double vc,double vh,double vp,W x0=0);
+	Policy(int vT,int vL,double vc,double vh,double vp,double valpha=1,W x0=0,int vis_integer=0);
 	//general constructor
-	Policy(int vT,int vL,vector<double> vc,vector<double> vh,vector<double> vpp,W x0=0);
+	Policy(int vT,int vL,vector<double> vc,vector<double> vh,vector<double> vp,double valpha=1,W x0=0,int vis_integer=0);
 
 	//Out put the sample path or the state set
 	int output();
@@ -69,9 +80,20 @@ public:
 	int foutput();
 
 	//This function update the sample path or the state after we get every demand and ordering in every 
-	int update(int t,W y_t,W d_t);
-
-	template<class X> friend class samples;
+	int update();
+	
+	//The following are friend functions or classes so we will be able to access the core data in the Policy class
+	//ConditionalExp is a friend function of class Policy
+	friend vector<double> ConditionalExp<>(W y,Policy<W> &policy);
+	//RandomDemand is a friend function of class Policy
+	friend int RandomDemand<>(Policy<W> &policy);
+	//DualBalancing/DP.Myopic are friend functions of class Policy
+	friend int DualBalancing<>(Policy<W> &policy);
+	friend int DP<>(Policy<W> &policy);
+	friend int Myopic<>(Policy<W> &policy);
+	
+	//Samples class is a friend class of Policy
+	friend class samples<W>;
 };
 
 template <class W>
@@ -103,10 +125,11 @@ Policy<W>::Policy():ParameterData(){
 }
 
 template <class W>
-Policy<W>::Policy(int vT,int vL,double vc,double vh,double vp,W x0=0):ParameterData(vT,vL,vc,vh,vp){
+Policy<W>::Policy(int vT,int vL,double vc,double vh,double vp,double valpha,W x0,int vis_integer):ParameterData(vT,vL,vc,vh,vp,valpha){
 	alg=0;
 	randomness=0;
 	rand_para.push_back(0);
+	is_integer=vis_integer;
 
 	cur=0;
 	total_C=0;
@@ -115,31 +138,30 @@ Policy<W>::Policy(int vT,int vL,double vc,double vh,double vp,W x0=0):ParameterD
 	total_d=0;
 	total_q=0;
 
-	vector<double> temp(vT+1,0);
-	C=temp;
-	Ch=temp;
-	Cp=temp;
-	C_accum=temp;
-	Ch_accum=temp;
-	Cp_accum=temp;
+	C.assign(vT+1,0);
+	Ch.assign(vT+1,0);
+	Cp.assign(vT+1,0);
+	C_accum.assign(vT+1,0);
+	Ch_accum.assign(vT+1,0);
+	Cp_accum.assign(vT+1,0);
 
-	vector<W> tempW(vT+1,0);
-	x=tempW;
-	d=tempW;
-	q=tempW;
-	NI=tempW;
-	d_accum=tempW;
-	q_accum=tempW;
+	x.assign(vT+1,0);
+	d.assign(vT+1,0);
+	q.assign(vT+1,0);
+	NI.assign(vT+1,0);
+	d_accum.assign(vT+1,0);
+	q_accum.assign(vT+1,0);
 
 	x[0]=x0;
 	NI[0]=x0;
 }
 
 template <class W>
-Policy<W>::Policy(int vT,int vL,vector<double> vc,vector<double> vh,vector<double> vp,W x0=0):ParameterData(vT,vL,vc,vh,vp){
+Policy<W>::Policy(int vT,int vL,vector<double> vc,vector<double> vh,vector<double> vp,double valpha,W x0,int vis_integer):ParameterData(vT,vL,vc,vh,vp,valpha){
 	alg=0;
 	randomness=0;
 	rand_para.push_back(0);
+	is_integer=vis_integer;
 
 	cur=0;
 	total_C=0;
@@ -148,21 +170,19 @@ Policy<W>::Policy(int vT,int vL,vector<double> vc,vector<double> vh,vector<doubl
 	total_d=0;
 	total_q=0;
 
-	vector<double> temp(vT+1,0);
-	C=temp;
-	Ch=temp;
-	Cp=temp;
-	C_accum=temp;
-	Ch_accum=temp;
-	Cp_accum=temp;
+	C.assign(vT+1,0);
+	Ch.assign(vT+1,0);
+	Cp.assign(vT+1,0);
+	C_accum.assign(vT+1,0);
+	Ch_accum.assign(vT+1,0);
+	Cp_accum.assign(vT+1,0);
 
-	vector<W> tempW(vT+1,0);
-	x=tempW;
-	d=tempW;
-	q=tempW;
-	NI=tempW;
-	d_accum=tempW;
-	q_accum=tempW;
+	x.assign(vT+1,0);
+	d.assign(vT+1,0);
+	q.assign(vT+1,0);
+	NI.assign(vT+1,0);
+	d_accum.assign(vT+1,0);
+	q_accum.assign(vT+1,0);
 
 	x[0]=x0;
 	NI[0]=x0;
@@ -188,15 +208,17 @@ int Policy<W>::output(){
 template <class W>
 int Policy<W>::soutput(){
 	int i;
+	int rand_para_size=rand_para.size();
 	cout.precision(4);
 	cout<<"Planning Horizon is: "<<T<<endl;
 	cout<<"The Current Step is at time: "<<cur<<endl;
 	cout<<"Leading Time is: "<<L<<endl;
 	cout<<"Discount Rate is: "<<alpha<<endl;
+	cout<<"This is a integer typed problem or not: "<<is_integer<<endl;
 	cout<<"The Algorithm is: "<<alg<<endl;
 	cout<<"The Distribution Type is: "<<randomness<<endl;
 	cout<<"The Distribution Parameters are: ";
-	for(i=0;i<rand_para.size();i++)
+	for(i=0;i<rand_para_size;i++)
 		cout<<setw(10)<<rand_para[i];
 	cout<<endl;
 	cout<<"Total Cost is: "<<total_C<<endl;
@@ -228,17 +250,19 @@ int Policy<W>::foutput(){
 		if(fout){
 			fout.seekp(0);
 			cout<<"File is openned successfully, outputting data..."<<endl;
-			
+					
 			int i;
+			int rand_para_size=rand_para.size();
 			fout.precision(4);
 			fout<<"Planning Horizon is: "<<T<<endl;
 			fout<<"The Current Step is at time: "<<cur<<endl;
 			fout<<"Leading Time is: "<<L<<endl;
 			fout<<"Discount Rate is: "<<alpha<<endl;
+			fout<<"This is a integer typed problem or not: "<<is_integer<<endl;
 			fout<<"The Algorithm is: "<<alg<<endl;
 			fout<<"The Distribution Type is: "<<randomness<<endl;
 			fout<<"The Distribution Parameters are: ";
-			for(i=0;i<rand_para.size();i++)
+			for(i=0;i<rand_para_size;i++)
 				fout<<setw(10)<<rand_para[i];
 			fout<<endl;
 			fout<<"Total Cost is: "<<total_C<<endl;
@@ -265,10 +289,33 @@ int Policy<W>::foutput(){
 }
 
 template<class W>
-int Policy<W>::update(int t, W y_t, W d_t){
-	cur=t;
+int Policy<W>::update(){
+	if(cur<=T){
+		if(cur<L+1)
+			NI[cur]=NI[cur-1]-d[cur];
+		if(cur>L)
+			NI[cur]=NI[cur-1]-d[cur]+q[cur-L];
+		
 
-	
+		x[cur]=x[cur-1]+q[cur]-d[cur];
+
+		Ch[cur]=h[cur]*max(NI[cur],0.0);
+		Cp[cur]=p[cur]*max(-NI[cur],0.0);
+		C[cur]=Ch[cur]+Cp[cur]+c[cur]*q[cur];
+		
+		C_accum[cur]=C_accum[cur-1]+C[cur];
+		Ch_accum[cur]=Ch_accum[cur-1]+Ch[cur];
+		Cp_accum[cur]=Cp_accum[cur-1]+Cp[cur];
+		d_accum[cur]=d_accum[cur-1]+d[cur];
+		q_accum[cur]=q_accum[cur-1]+q[cur];
+		
+		total_C=C_accum[cur];
+		total_Ch=Ch_accum[cur];
+		total_Cp=Cp_accum[cur];
+		total_d=d_accum[cur];
+		total_q=q_accum[cur];
+	}	
+	return 1;
 }
 
 
