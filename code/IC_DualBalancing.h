@@ -9,6 +9,7 @@ using namespace std;
 template <class W>
 int DualBalancing (Policy<W>& P) {
 	while(P.cur<P.T){
+		//cout<<"P.cur "<<P.cur<<endl;
 		P.cur =P.cur+1;
 		if (P.cur > P.T - P.L) {
 			P.q[P.cur] = 0;

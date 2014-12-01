@@ -87,7 +87,7 @@ struct X // helper functions for compute statistics about normal dist
 	static vector< vector<double> > mean_std(int n,vector<double> d, double inc, double mu, double sigma) {
 		vector< vector<double> > val;
 		vector< vector<double> > sum;
-		vector<double> temp(n+inc+1,0);
+		vector<double> temp(n+inc+2,0);
 		int i,j,k;
 		for(i=0;i<=inc+1+n;i++){
 			val.push_back(temp);
@@ -104,8 +104,9 @@ struct X // helper functions for compute statistics about normal dist
 				}
 			}
 		}
+		//cout<<n<<' '<<d.size()<<' '<<inc<<' '<<mu<<' '<<sigma<<endl;
 
-		for(i=1;i<=inc+1+n;i++){
+		for(i=n+1;i<=inc+1+n;i++){
 			for(j=1;j<=inc+1+n;j++){
 				sum[i][j]=sum[i-1][j]+val[i][j];
 			}
@@ -162,21 +163,22 @@ int RandomDemand(Policy<W> &policy){
 		}
 	else if(policy.dist==5){
 		double d=0;
-		double n=policy.rd_p[2];
-		if(P.cur-n<1){
-			if(P.cur == 1)
-				d.push_back(P.rd_p[2]);
+		double n=policy.rd_p[3];
+		if(policy.cur-n<1){
+			if(policy.cur == 1)
+				d=policy.rd_p[2];
 			else{
-				for(int i=1;i<=P.cur-1;i++)
-					d.push_back(P.d[i]);
+				for(int i=1;i<=policy.cur-1;i++)
+					d=d+policy.d[i];
+				d=d/(policy.cur-1);
 			}
-			ms=X::mean_std(max(P.cur-1,1),d,P.T-P.cur,mu,sigma);
 		}
 		else{
-			for(int i=P.cur-n;i<=P.cur-1;i++)
-				d.push_back(P.d[i]);
-			ms=X::mean_std(n,d,P.T-P.cur,mu,sigma);
+			for(int i=policy.cur-n;i<=policy.cur-1;i++)
+				d=d+policy.d[i];
+			d=d/n;
 		}
+		policy.d[policy.cur]=d+Normal(policy.rd_p[0],policy.rd_p[1]);
 	}
 	return 1;
 }
@@ -444,7 +446,6 @@ vector<double> RAnNormalCE(double q, Policy<W> &P){
 					d.push_back(P.d[i]);
 				ms=X::mean_std(n,d,P.T-P.cur,mu,sigma);
 			}
-
 			for (int j = P.cur+P.L; j <= P.T; j++) {
 				if(j == P.T) {
 					h_hat = P.h[j] + P.c[j];
@@ -452,16 +453,21 @@ vector<double> RAnNormalCE(double q, Policy<W> &P){
 					h_hat = P.h[j] + P.c[j] - P.c[j+1];
 				}
 				double inc = h_hat * X::exp_tranc_normal(q -( ms[j-P.cur][0] - x), ms[j-P.cur][1],0,q);
+				// cout << "mean: " << ms[j-P.cur][0] << endl;
+				// getchar();
+				// getchar();
 				if (inc == 0) break;
 				sum += inc;
 			}
+			
+			//cout<<"We are good here"<<P.cur<<endl;
 			v.push_back(sum);
 			double p_bar;
 			if (P.cur == P.T)
 				p_bar = P.p[P.cur] - P.c[P.cur];
 			else
 				p_bar = P.p[P.cur] - P.c[P.cur] + P.c[P.cur+1];
-			v.push_back(p_bar*X::exp_tranc_normal(ms[P.L-P.cur][0] - y,ms[P.L-P.cur][0],0,100000000000));
+			v.push_back(p_bar*X::exp_tranc_normal(ms[P.L][0] - y,ms[P.L][1],0,100000000000));
 			return v;
 		}
 		static vector<double> Myopic(double q, Policy<W> &P) {

@@ -41,18 +41,12 @@ p4
 multiplot(p2,p4)
 
 library(ggplot2)
-x <- c(0,2,1,3,2,3,3,5,4,2,4,6,9,12,11,9,15,10,14,16,19,17,14,21,20,20,28,29,33)
-x_2 <- c(x[3:29],c(31,35))-1
 y <- c(2,3,4,3,3,4,6,7,8,5,13,16,14,15,15,17,19,19,19,20,20,18,20,17,22,25,29,30,33)
 y_2 <- c(y[3:29],c(30,29))+1
-dat <-cbind(x,y,"DualBalancing")
-colnames(dat) <- c("Time","DemandForecast","Group")
-dat_2 <-cbind(x_2,y_2,"DynamicProgramming")
-dat_3 <-cbind(x_2*1.4,y_2*1.2,"Myopic")
-colnames(dat_2) <- c("Time","DemandForecast","Group")
-dat <- as.data.frame(rbind(dat,dat_2,dat_3))
+x <- 1:29
+x_2 <- 1:29
+dat <- data.frame(Time = x, DemandForecast = y, Group = rep("DualBalancing", 29))
+dat_2 <- data.frame(Time = x_2, DemandForecast = y_2, Group = rep("DynamicProgramming", 29))
+dat <- rbind(dat,dat_2)
 
-#p <- ggplot(as.data.frame(dat), aes(x=X, y=Y, group=Group))
-#p + geom_line()
-
-ggplot(dat, aes(x=Time, y=DemandForecast, group=Group, colour=Group)) + geom_line() + ggtitle("Stochastic Lead Time Algorithm Performance")
+ggplot(dat, aes(x=Time, y=DemandForecast, group=Group, colour=Group)) + geom_point() + geom_line() + ggtitle("Stochastic Lead Time Algorithm Performance") + coord_fixed(ratio=1/3)
