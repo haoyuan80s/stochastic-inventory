@@ -2,12 +2,13 @@
 #define IC_DUALBALANCING_H
 #include "IC_Policy.h"
 #include "IC_Random.h"
+#include "IC_Support.h"
 #include <cmath>
 using namespace std;
 
 template <class W>
 int DualBalancing (Policy<W>& P) {
-	if(P.cur<P.T){
+	while(P.cur<P.T){
 		P.cur =P.cur+1;
 		if (P.cur > P.T - P.L) {
 			P.q[P.cur] = 0;
@@ -15,30 +16,38 @@ int DualBalancing (Policy<W>& P) {
 		else {
 			vector<double> v;
 			double min = 0;
-			double max = 1000;
+			double max = 1;
 			while(true) {
-				v = ConditionalExp(max,P);
+				v = ConditionalExp(max,P); // increasing 
+				//cout<<v[0]<<' '<<v[1]<<endl;
 				if (v[0] - v[1] < 0) 
 					max *= 2;
 				else
 					break;
 			}
-			double eps = 0.00001;
-			double q = (min + max) / 2;
+			//cout<<"updating successfully :"<<P.cur<<endl;
+			double eps = 0.0000001;
+			double order = (min + max) / 2;
 			while (true) {
-				v = ConditionalExp(q,P);
+				v = ConditionalExp(order,P);
 				if (abs(v[0] - v[1]) < eps) break;
 				else if(v[0] - v[1] > 0) {
-					max = q;
-					q = (min + q)/2;
+					max = order;
+					order = (min + order)/2;
 				} else {
-					min = q;
-					q = (max+q)/2;
+					min = order;
+					order = (max+order)/2;
 				}
 			}
-			P.q[P.cur] = q;
+			if (P.is_integer) {
+				double x = Unif();
+				if (x > order - (int)order) P.q[P.cur] = (int)order;
+				else P.q[P.cur] = (int)order + 1;
+
+			} else P.q[P.cur] = order;
 		}
 		RandomDemand(P);
+		P.update();
 	}
 	return 1;
 }

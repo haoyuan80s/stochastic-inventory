@@ -1,18 +1,40 @@
 #ifndef IC_POLICY_H
 #define IC_POLICY_H
 #include"IC_ParameterData.h"
+#include"IC_Support.h"
 #include<fstream>
 #include<algorithm>
 using namespace std;
 
+const int ALG=3;
+const double ALPHA=1;
+const int X0=0;
+const int IS_INTEGER=0;
+const int ITEMNUM=30;
+const int DIST=0;
+const vector<double> RD_P(1,0);
+
+//Policy is a class saving result and sample path for different algorithm approaches
 template<class W> class Policy;
-template<class W> vector<double> ConditionalExp(W y,Policy<W> &policy);
-template<class W> int RandomDemand(Policy<W> &policy);
+//The three are the core algorithm to compute the inventory control problem
 template<class W> int DualBalancing (Policy<W>& P);
 template<class W> int Myopic (Policy<W>& P);
 template<class W> int DP (Policy<W>& P);
 
-template<class W> class samples;
+//The following are the friend function in IC_Random.h
+//This function return all the different conditional expectations based on different algorithms and distributions
+template<class W> vector<double> ConditionalExp(double q,Policy<W> &policy);
+//The function generate a sample of demand based on the distributions
+template<class W> int RandomDemand(Policy<W> &policy);
+//These returns conditional expectation depends on different distribution
+template<class W> vector<double> BinomialCE(double q,Policy<W> &policy);
+template<class W> vector<double> IncreBinomialCE(double q,Policy<W> &policy);
+template<class W> vector<double> NormalCE(double q,Policy<W> &policy);
+template<class W> vector<double> RA1NormalCE(double q, Policy<W> &P);
+template<class W> vector<double> RAnNormalCE(double q, Policy<W> &P);
+
+//This class collect datas
+template<class W> class Samples;
 
 //Policy is a class saving result and sample path for different algorithm approaches
 template <class W>
@@ -23,10 +45,10 @@ public:
 	//alg include what algorithm we used to compute the policy
 	//1 for DP, 2 for myopic, 3 for dual balancing
 	int alg;
-	//randomness is what kind of random process distribution we used to generat the demand
-	int randomness;
-	//rand_para include all the parameter for the distribution of the random process 
-	vector<double> rand_para;
+	//dist is what kind of random process distribution we used to generat the demand
+	int dist;
+	//rd_p include all the parameter for the distribution of the random process 
+	vector<double> rd_p;
 	//whether W is integer type
 	int is_integer;
 
@@ -68,9 +90,10 @@ public:
 	//Default Constructor
 	Policy();
 	//Constructor assigning constant cost coefficient
-	Policy(int vT,int vL,double vc,double vh,double vp,double valpha=1,W x0=0,int vis_integer=0);
+	Policy(int vT,int vL,double vc,double vh,double vp,int valg=ALG,double valpha=ALPHA,W vx0=(W)(X0),int vis_integer=IS_INTEGER,int vdist=DIST,vector<double> vrd_p=RD_P);
 	//general constructor
-	Policy(int vT,int vL,vector<double> vc,vector<double> vh,vector<double> vp,double valpha=1,W x0=0,int vis_integer=0);
+	Policy(int vT,int vL,vector<double> vc,vector<double> vh,vector<double> vp,int valg=ALG,double valpha=ALPHA,W vx0=(W)(X0),int vis_integer=IS_INTEGER,int vdist=DIST,vector<double> vrd_p=RD_P);
+
 
 	//Out put the sample path or the state set
 	int output();
@@ -84,23 +107,32 @@ public:
 	
 	//The following are friend functions or classes so we will be able to access the core data in the Policy class
 	//ConditionalExp is a friend function of class Policy
-	friend vector<double> ConditionalExp<>(W y,Policy<W> &policy);
+	friend vector<double> ConditionalExp<>(double q,Policy<W> &policy);
 	//RandomDemand is a friend function of class Policy
 	friend int RandomDemand<>(Policy<W> &policy);
 	//DualBalancing/DP.Myopic are friend functions of class Policy
 	friend int DualBalancing<>(Policy<W> &policy);
 	friend int DP<>(Policy<W> &policy);
 	friend int Myopic<>(Policy<W> &policy);
+
+	//Different conditional expectatoins. 
+	friend vector<double> BinomialCE<>(double q,Policy<W> &policy);
+	friend vector<double> IncreBinomialCE<>(double q,Policy<W> &policy);
+	friend vector<double> NormalCE<>(double q,Policy<W> &policy);
+	friend vector<double> RA1NormalCE<>(double q, Policy<W> &P);
+	friend vector<double> RAnNormalCE<>(double q, Policy<W> &P);
+
 	
 	//Samples class is a friend class of Policy
-	friend class samples<W>;
+	friend class Samples<W>;
 };
 
 template <class W>
 Policy<W>::Policy():ParameterData(){
 	alg=0;
-	randomness=0;
-	rand_para.push_back(0);
+	dist=0;
+	rd_p.push_back(0);
+	is_integer=0;
 
 	cur=0;
 	total_C=0;
@@ -125,10 +157,10 @@ Policy<W>::Policy():ParameterData(){
 }
 
 template <class W>
-Policy<W>::Policy(int vT,int vL,double vc,double vh,double vp,double valpha,W x0,int vis_integer):ParameterData(vT,vL,vc,vh,vp,valpha){
-	alg=0;
-	randomness=0;
-	rand_para.push_back(0);
+Policy<W>::Policy(int vT,int vL,double vc,double vh,double vp,int valg,double valpha,W vx0,int vis_integer,int vdist,vector<double> vrd_p):ParameterData(vT,vL,vc,vh,vp,valpha){
+	alg=valg;
+	dist=vdist;
+	rd_p=vrd_p;
 	is_integer=vis_integer;
 
 	cur=0;
@@ -152,15 +184,15 @@ Policy<W>::Policy(int vT,int vL,double vc,double vh,double vp,double valpha,W x0
 	d_accum.assign(vT+1,0);
 	q_accum.assign(vT+1,0);
 
-	x[0]=x0;
-	NI[0]=x0;
+	x[0]=vx0;
+	NI[0]=vx0;
 }
 
 template <class W>
-Policy<W>::Policy(int vT,int vL,vector<double> vc,vector<double> vh,vector<double> vp,double valpha,W x0,int vis_integer):ParameterData(vT,vL,vc,vh,vp,valpha){
-	alg=0;
-	randomness=0;
-	rand_para.push_back(0);
+Policy<W>::Policy(int vT,int vL,vector<double> vc,vector<double> vh,vector<double> vp,int valg,double valpha,W vx0,int vis_integer,int vdist,vector<double> vrd_p):ParameterData(vT,vL,vc,vh,vp,valpha){
+	alg=valg;
+	dist=vdist;
+	rd_p=vrd_p;
 	is_integer=vis_integer;
 
 	cur=0;
@@ -184,8 +216,8 @@ Policy<W>::Policy(int vT,int vL,vector<double> vc,vector<double> vh,vector<doubl
 	d_accum.assign(vT+1,0);
 	q_accum.assign(vT+1,0);
 
-	x[0]=x0;
-	NI[0]=x0;
+	x[0]=vx0;
+	NI[0]=vx0;
 }
 
 
@@ -208,18 +240,19 @@ int Policy<W>::output(){
 template <class W>
 int Policy<W>::soutput(){
 	int i;
-	int rand_para_size=rand_para.size();
+	int rd_p_size=rd_p.size();
 	cout.precision(4);
 	cout<<"Planning Horizon is: "<<T<<endl;
 	cout<<"The Current Step is at time: "<<cur<<endl;
 	cout<<"Leading Time is: "<<L<<endl;
 	cout<<"Discount Rate is: "<<alpha<<endl;
+	cout<<"Initial Inventory is: "<<x[0]<<endl;
 	cout<<"This is a integer typed problem or not: "<<is_integer<<endl;
 	cout<<"The Algorithm is: "<<alg<<endl;
-	cout<<"The Distribution Type is: "<<randomness<<endl;
+	cout<<"The Distribution Type is: "<<dist<<endl;
 	cout<<"The Distribution Parameters are: ";
-	for(i=0;i<rand_para_size;i++)
-		cout<<setw(10)<<rand_para[i];
+	for(i=0;i<rd_p_size;i++)
+		cout<<setw(10)<<rd_p[i];
 	cout<<endl;
 	cout<<"Total Cost is: "<<total_C<<endl;
 	cout<<"Total Demand is: "<<total_d<<endl;
@@ -228,14 +261,26 @@ int Policy<W>::soutput(){
 	cout<<"Total Backlogging Cost is: "<<total_Cp<<endl;
 	cout<<endl;
 
-	cout<<setw(6)<<"Period"<<setw(10)<<"Inv Pos"<<setw(10)<<"Net Inv"<<setw(10)<<"Cost"<<setw(10)<<"Demand"<<setw(10)<<"Ordering"<<setw(10)<<"H Cost"<<setw(10)<<"B Cost";
-	cout<<setw(10)<<"Cost Ac"<<setw(10)<<"Demand Ac"<<setw(10)<<"Order Ac"<<setw(10)<<"H Cost Ac"<<setw(10)<<"B Cost Ac"<<endl;
-	for(i=0;i<=T;i++){
-		cout<<setw(6)<<i<<setw(10)<<x[i]<<setw(10)<<NI[i]<<setw(10)<<C[i]<<setw(10)<<d[i]<<setw(10)<<q[i]<<setw(10)<<Ch[i]<<setw(10)<<Cp[i];
-		cout<<setw(10)<<C_accum[i]<<setw(10)<<d_accum[i]<<setw(10)<<q_accum[i]<<setw(10)<<Ch_accum[i]<<setw(10)<<Cp_accum[i]<<endl;
+	i=0;
+	getchar();
+	while(1){
+		cout<<setw(6)<<"Period"<<setw(11)<<"Inv Pos"<<setw(11)<<"Net Inv"<<setw(11)<<"Cost"<<setw(11)<<"Demand"<<setw(11)<<"Ordering"<<setw(11)<<"H Cost"<<setw(11)<<"B Cost";
+		cout<<setw(11)<<"Cost Ac"<<setw(11)<<"Demand Ac"<<setw(11)<<"Order Ac"<<setw(11)<<"H Cost Ac"<<setw(11)<<"B Cost Ac"<<endl;
+		for(;i<=T;i++){
+			cout<<setw(6)<<i<<setw(11)<<x[i]<<setw(11)<<NI[i]<<setw(11)<<C[i]<<setw(11)<<d[i]<<setw(11)<<q[i]<<setw(11)<<Ch[i]<<setw(11)<<Cp[i];
+			cout<<setw(11)<<C_accum[i]<<setw(11)<<d_accum[i]<<setw(11)<<q_accum[i]<<setw(11)<<Ch_accum[i]<<setw(11)<<Cp_accum[i]<<endl;
+			if(i%ITEMNUM==0&&i!=0)
+				break;
+		}
+		cout<<endl;
+		if(i>=T)
+			break;
+		else{
+			cout<<"Press Enter to continue."<<endl;
+			getchar();
+			i=i+1;
+		}
 	}
-	cout<<endl;
-
 	return 1;
 }
 
@@ -252,18 +297,19 @@ int Policy<W>::foutput(){
 			cout<<"File is openned successfully, outputting data..."<<endl;
 					
 			int i;
-			int rand_para_size=rand_para.size();
+			int rd_p_size=rd_p.size();
 			fout.precision(4);
 			fout<<"Planning Horizon is: "<<T<<endl;
 			fout<<"The Current Step is at time: "<<cur<<endl;
 			fout<<"Leading Time is: "<<L<<endl;
 			fout<<"Discount Rate is: "<<alpha<<endl;
+			fout<<"Initial Inventory is: "<<x[0]<<endl;
 			fout<<"This is a integer typed problem or not: "<<is_integer<<endl;
 			fout<<"The Algorithm is: "<<alg<<endl;
-			fout<<"The Distribution Type is: "<<randomness<<endl;
+			fout<<"The Distribution Type is: "<<dist<<endl;
 			fout<<"The Distribution Parameters are: ";
-			for(i=0;i<rand_para_size;i++)
-				fout<<setw(10)<<rand_para[i];
+			for(i=0;i<rd_p_size;i++)
+				fout<<setw(10)<<rd_p[i];
 			fout<<endl;
 			fout<<"Total Cost is: "<<total_C<<endl;
 			fout<<"Total Demand is: "<<total_d<<endl;
@@ -272,11 +318,12 @@ int Policy<W>::foutput(){
 			fout<<"Total Backlogging Cost is: "<<total_Cp<<endl;
 			fout<<endl;
 
-			fout<<setw(6)<<"Period"<<setw(10)<<"Inv Pos"<<setw(10)<<"Net Inv"<<setw(10)<<"Cost"<<setw(10)<<"Demand"<<setw(10)<<"Ordering"<<setw(10)<<"H Cost"<<setw(10)<<"B Cost";
-			fout<<setw(10)<<"Cost Ac"<<setw(10)<<"Demand Ac"<<setw(10)<<"Order Ac"<<setw(10)<<"H Cost Ac"<<setw(10)<<"B Cost Ac"<<endl;
+			
+			fout<<setw(6)<<"Period"<<setw(11)<<"Inv Pos"<<setw(11)<<"Net Inv"<<setw(11)<<"Cost"<<setw(11)<<"Demand"<<setw(11)<<"Ordering"<<setw(11)<<"H Cost"<<setw(11)<<"B Cost";
+			fout<<setw(11)<<"Cost Ac"<<setw(11)<<"Demand Ac"<<setw(11)<<"Order Ac"<<setw(11)<<"H Cost Ac"<<setw(11)<<"B Cost Ac"<<endl;
 			for(i=0;i<=T;i++){
-				fout<<setw(6)<<i<<setw(10)<<x[i]<<setw(10)<<NI[i]<<setw(10)<<C[i]<<setw(10)<<d[i]<<setw(10)<<q[i]<<setw(10)<<Ch[i]<<setw(10)<<Cp[i];
-				fout<<setw(10)<<C_accum[i]<<setw(10)<<d_accum[i]<<setw(10)<<q_accum[i]<<setw(10)<<Ch_accum[i]<<setw(10)<<Cp_accum[i]<<endl;
+				fout<<setw(6)<<i<<setw(11)<<x[i]<<setw(11)<<NI[i]<<setw(11)<<C[i]<<setw(11)<<d[i]<<setw(11)<<q[i]<<setw(11)<<Ch[i]<<setw(11)<<Cp[i];
+				fout<<setw(11)<<C_accum[i]<<setw(11)<<d_accum[i]<<setw(11)<<q_accum[i]<<setw(11)<<Ch_accum[i]<<setw(11)<<Cp_accum[i]<<endl;
 			}
 			fout<<endl;
 
@@ -299,8 +346,8 @@ int Policy<W>::update(){
 
 		x[cur]=x[cur-1]+q[cur]-d[cur];
 
-		Ch[cur]=h[cur]*max(NI[cur],0.0);
-		Cp[cur]=p[cur]*max(-NI[cur],0.0);
+		Ch[cur]=h[cur]*max((double)NI[cur],0.0);
+		Cp[cur]=p[cur]*max(-(double)NI[cur],0.0);
 		C[cur]=Ch[cur]+Cp[cur]+c[cur]*q[cur];
 		
 		C_accum[cur]=C_accum[cur-1]+C[cur];
