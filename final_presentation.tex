@@ -26,7 +26,7 @@
 
 \title{Approximation Algorithms for Stochastic Inventory Control Models}
 \subtitle{A periodic-review stochastic inventory control problem}
-\author[Hao Yuan, Feng Wei, Blake Miller]{Hao Yuan, Feng Wei, Blake Miller \\ {\ttfamily Github:\href{https://github.com/blakeapm/stochastic-inventory}{github.com/blakeapm/stochastic-inventory}}}
+\author[Hao Yuan, Feng Wei, Blake Miller]{Hao Yuan, Feng Wei, Blake Miller  {\ttfamily Github:\href{https://github.com/blakeapm/stochastic-inventory}{github.com/blakeapm/stochastic-inventory}}}
 \date{\today}
 
 \begin{document}
@@ -64,44 +64,101 @@
   \section{Expected Cost Function}
   \subsection{Minimizing Expected Cost}
   \begin{frame}
-    \frametitle{Minimizing Expected Cost}
+    \frametitle{Model}
+    We consider finite time horizon $T$.
     \par
-      {\centering\yearwidth{0.8pt}\tclap{\tiny t}\showyear{1}\skipyears[black]{.3in}\showyear{2}\skipyears[black]{.3in}\showyear{3}\skipyears[black]{.3in}\showyear{4}\skipyears[black]{.3in}\showyear{5}\skipyears[black]{.3in}\showyear{6}\skipyears[black]{.3in}$\text{  }\cdots\text{  }$\showyear{$T-1$}\skipyears[black]{.3in}\showyear{$T$}
+      {\centering\yearwidth{1pt}\tclap{\tiny t}\showyear{1}\skipyears[black]{.5in}\showyear{2}\skipyears[black]{.5in}\showyear{3}\skipyears[black]{.5in}\showyear{4}\skipyears[black]{.5in}\showyear{5}\skipyears[black]{.5in}\showyear{6}\skipyears[black]{.5in}$\text{  }\cdots\text{  }$\showyear{$T-1$}\skipyears[black]{.5in}\showyear{$T$}
     \par}
     \vspace{0.1in}
-    At each time period in a a finite planning horizon of $T$ periods numbered $t=1,\cdots,T$, the following costs are incurred
+    At each time period $t = 1,\cdots,T$, the following cost are incurred
+        \[L_t(x_t,d_t,q_t):=c_tq_t+h_t(x_t + q_t - d_t)^{+}+p_t(x_t + q_t -d_t)_{t}^{-}\]
+        (Local Cost = Ordering Cost + Holding Cost + Backloging Cost)
     \begin{itemize}
-      \item $c_t$: per-unit ordering cost at time $t$
-      \item $h_t$: per-unit holding cost from $t$ to $t + 1$
-      \item $p_t$: per-unit backlogging penalty at time $t$
-      \item $NI_t$: net inventory at time $t$
+      \item $c_t$: per-unit ordering cost at time $t$.
+      \item $h_t$: per-unit holding cost from $t$ to $t + 1$.
+      \item $p_t$: per-unit backlogging penalty at time $t$.
+      \item $x_t$: net inventory at time $t$. (our state)
+      \item $q_t$: ordering quantity at time $t$. (our control)
+      \item $d_t$: demand quantity at time $t$. (we observe $d_t$ after decide $q_t$)
     \end{itemize}
-    The cost generated at time $t$ will be:
-    \[C_t=c_tq_t+h_tNI_t^{+}+p_tNI_{t}^{-}\]
   \end{frame}
-  \subsection{Parameters}
+
   \begin{frame}
-    \frametitle{Expected Cost Function Parameters}
-    To ensure the highest profit margin, we minimize the following function at each given time period:
+    Goal: At time $t$, choose $q_t$ to minimize the expected total cost from period $t$ to $T$.\\
+    Let $V_t$ be the minimum expected cost from period $t$ to $T$. Then
     \begin{eqnarray*}
-    V_{t}(x_{t},f_{t}) = \min_{x_{t}\leq y_{t}}\begin{cases}c_{t}(y_{t}-x_{t})+E[h_{t}(y_{t}-D_{t})^{+}+p_{t}(D_{t}-y_{t})^{-}|f_{t}]\end{cases}\\
-    + E[V_{t+1}(y_{t}-D_{t},F_{t+1})|f_{t}]\}
+    V_T(x_T,d_{1..T-1}) =& \min_{q_T \geq 0} E[L_T(x_T,D_T,q_T) | d_{1..T-1}]\\
+    V_t(x_t,d_{1..t-1}) =& \min_{q_t \geq 0} E[L_t(x_t,D_t,q_t)\\
+                        &+V_{t+1}(x_t + q_t - D_t, d_{1..t-1},D_t)|d_{1..t-1}]
     \end{eqnarray*}
+    
+    This gives us two derict ways to "solve" the problem:
     \begin{itemize}
-      \item Cost periods $t,\cdots,T$
-      \item $h_{t}\left(x_{t}+q_{t}-D_{t}\right)^{+} \text{is holding cost}$
-      \item $p_{t}\left(x_{t}+q_{t}-D_{t}\right)^{-} \text{is backlogging cost}$
-      \item $x_{t}$ is inventory position (how much inventory you have in stock and on order)
-      \item $Q_{t}$ is the amount of product
-      \item $D_{t}$ is the demand for the product (random)
-      \item $c_{t}\left(q_{t}\right) \text{ is production cost}$
+      \item 
+        Dynamic Programming: solve for $q_t$ backwards using the formula above.
+      \item
+        Myopic: At time $t$, ignore $V_{t+1}$, we only minimize $E[L_t(x_t,D_t,q_t)|d_{1..t-1}]$.
     \end{itemize}
-  \end{frame}
-  \subsection{Computational Challenges}
-  \begin{frame}
-  \frametitle{Computational Challenges}
 
   \end{frame}
+
+\begin{frame}
+Remark: 
+    \begin{itemize}
+      \item 
+        If we consider leading time $L$ (i.e. it takes $L$ periods to receive our order.) Then the only change is that we modify:
+        \begin{eqnarray*}
+          x_t & := Nat~Inventory + Undelived~orders.\\
+          L_t(x_t,d_{t..t+L},q_t)& :=c_tq_t + h_{t+L}(x_t + q_t - \sum d_{t..t+L})^{+} \\ &  + p_{t+L}(x_t + q_T - \sum d_{t..t+L})^{-}
+        \end{eqnarray*}
+        ***$ \sum d_{t..t+L} := d_t + ... + d_{t+L}$
+      \item
+        We can assume $c_t = 0$ by doing the transformation:
+        \begin{eqnarray*}
+          &\hat{c_t} := 0;\\
+          &\hat{h_t} := h_t + c_t - c_{t+1}\\
+          &\hat{p_t} := p_t - c_t + c_{t+1}
+        \end{eqnarray*}
+        ***$c_{T+1} := 0$
+      \end{itemize}
+\end{frame}
+
+\begin{frame}
+Remark: 
+    \begin{itemize}
+      \item 
+        At period $t$, $D_t$ is a random variable that depends on perivous demands $d_{1..t-1} := {d_1,d_2,...,d_{t-1}}$, which leads the dynamic programming approach untrackable.
+      \item
+        Myopic approach works good on many cases, but may perform extremly bad on some cases. (will see example in following slides)
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+    \frametitle{Idea for Dual-Balancing Approach}    
+     Myopic approach minimzie:\\
+     {\em Ordering Cost + Holding Cost + Backlogging Cost},\\
+      which underestimates holding cost, since it only consider it for one period.\\
+    Dual-Balancing gives a better way to count holding cost, called {\em Marginal Holding Cost}:
+    $H_t(x_t,q_t) := \sum_{j = t+L}^{T} h_j (q_t - (\sum D_{t..j} - x_t)^+)^+$.
+
+    Picture Here!!!\\
+    Algorithm for Dual-Balancing apporach:
+    \begin{itemize}
+      \item 
+        Do transformation make ordering cost 0.
+      \item
+        We choose $q_t$ such that\\
+        {\em Expected Marginal Holding Cost} = {\em Expected (Marginal) Backloging Cost}. i.e.\\
+        $E[H_t(x_t,q_t)| d_{1..t-1}] = E[p_{t+l}(\sum D_{t..t+L} (x_t + q_t))^+ | d_{1..t-1}]$
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Chanllenge in the Project}    
+    
+\end{frame}
+
 
   \section{The Algorithm and Computational Approaches}
     \subsection{Dynamic Programming}
