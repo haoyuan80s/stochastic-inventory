@@ -128,7 +128,7 @@ MyopicBadNetInventory <- plot_2_graph(myopic_bad_case$NetInventoryMY, "MyopicNet
 #Myopic Bad: Cumulative Cost
 MyopicBadAccumulativeCost <- plot_2_graph(myopic_bad_case$AccumulativeCostMY, "MyopicAccumulativeCost", myopic_bad_case$AccumulativeCostDB,"DualBalancingAccumulativeCost","blah",200,"Myopic Bad Case: Comparing Accumulative Cost") + geom_line()
 #Myopic Bad: Ordering
-MyopicBadOrdering <- plot_2_graph(myopic_bad_case$OrderingMY, "MyopicOrdering", myopic_bad_case$OrderingDB,"DualBalancingOrdering","blah",200,"Myopic Bad Case: Comparing Ordering")+xlim(0,30) + geom_line()
+MyopicBadOrdering <- plot_2_graph(myopic_bad_case$OrderingMY, "MyopicOrdering", myopic_bad_case$OrderingDB,"DualBalancingOrdering","blah",200,"Myopic Bad Case: Comparing Ordering")+xlim(0,30) + geom_point()
 
 ggsave(MyopicBadDemand,file="figures/MyopicBadDemand.png", scale=.5)
 ggsave(MyopicBadNetInventory,file="figures/MyopicBadNetInventory.png", scale=.5)
