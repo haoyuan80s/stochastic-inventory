@@ -1,4 +1,38 @@
 library(ggplot2)
+
+db_output01 <- read.csv("output/db_output01.csv")
+db_output02 <- read.csv("output/db_output02.csv")
+db_output03 <- read.csv("output/db_output03.csv")
+db_output04 <- read.csv("output/db_output04.csv")
+
+my_output01 <- read.csv("output/my_output01.csv")
+my_output02 <- read.csv("output/my_output02.csv")
+my_output03 <- read.csv("output/my_output03.csv")
+my_output04 <- read.csv("output/my_output04.csv")
+
+myopic_bad_case <- read.csv("output/myopic_bad_case.csv")
+
+tc_to <- read.csv("output/tc_to.csv")
+tc_to_y <- (tc_to$TotalCostN/tc_to$TotalOrderingN)
+tc_to_y_2 <- (tc_to$TotalCostIN/tc_to$TotalOrderingIN)
+tc_to_x <- (0:20)*20
+
+net_inv_1 <- read.csv("output/net_inv_1.csv")
+net_inv_2 <- read.csv("output/net_inv_2.csv")
+net_inv_1$NetInventory0
+net_inv_1$NetInventory20
+net_inv_1$NetInventory40
+net_inv_1$NetInventory60
+net_inv_2$NetInventory0
+net_inv_2$NetInventory20
+net_inv_2$NetInventory40
+net_inv_2$NetInventory60
+
+#dp_output01 <- read.csv("output/dp_output01.csv")
+#dp_output02 <- read.csv("output/dp_output02.csv")
+#dp_output03 <- read.csv("output/dp_output03.csv")
+#dp_output04 <- read.csv("output/dp_output04.csv")
+
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   require(grid)
   # Make a list from the ... arguments and plotlist
@@ -27,26 +61,69 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   }
 }
 
-x_2 <- c(0,2,1,3,2,3,3,5,4,2,4,6,9,12,11,9,15,10,14,16,19,17,14,21,20,20,28,29,33)
-x <- c(x_2[3:29],c(31,35))-1
-y <- c(2,3,4,3,3,4,6,7,8,5,13,16,14,15,15,17,19,19,19,20,20,18,20,17,22,25,29,30,33)
-y_2 <- c(x[3:29],c(30,29))+1
-dat <- as.data.frame(cbind(x,x_2,y,y_2))
-p1 <- ggplot(dat, aes(x = x, y = y))
-p2 <- p1 + geom_point(color = "blue") + geom_line() + ggtitle("Title goes here")
-p3 <- ggplot(dat, aes(x = x_2, y = y_2))
-p4 <- p3 + geom_point(color = "red") + geom_line() + ggtitle("Title goes here")
-p2
-p4
-multiplot(p2,p4)
+g_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
 
-library(ggplot2)
-y <- c(2,3,4,3,3,4,6,7,8,5,13,16,14,15,15,17,19,19,19,20,20,18,20,17,22,25,29,30,33)
-y_2 <- c(y[3:29],c(30,29))+1
-x <- 1:29
-x_2 <- 1:29
-dat <- data.frame(Time = x, DemandForecast = y, Group = rep("DualBalancing", 29))
-dat_2 <- data.frame(Time = x_2, DemandForecast = y_2, Group = rep("DynamicProgramming", 29))
-dat <- rbind(dat,dat_2)
+plot_2_graph <- function(y,y_title,y2,y2_title,y_axs_title,nrows,title) {
+  line_1 <- data.frame(TimePeriod = 0:nrows, DemandAndCost = y, Group = rep(y_title, nrows+1))
+  line_2 <- data.frame(TimePeriod = 0:nrows, DemandAndCost = y2, Group = rep(y2_title, nrows+1))
+  dat <- rbind(line_1,line_2)
+  ggplot(dat, aes(x=TimePeriod, y=DemandAndCost, group=Group, colour=Group)) + ggtitle(title) + theme(axis.text=element_text(size=6),axis.title=element_text(size=6), title=element_text(size=8),legend.position='bottom',legend.title = element_text(color="#ffffff",size=10),legend.text = element_text(size=6))
+}
 
-ggplot(dat, aes(x=Time, y=DemandForecast, group=Group, colour=Group)) + geom_point() + geom_line() + ggtitle("Stochastic Lead Time Algorithm Performance") + coord_fixed(ratio=1/3)
+plot_graph <- function(y,y_title,y2,y2_title,y3,y3_title,y4,y4_title,y_axs_title,nrows,title) {
+  line_1 <- data.frame(TimePeriod = 0:nrows, DemandAndCost = y, Group = rep(y_title, nrows+1))
+  line_2 <- data.frame(TimePeriod = 0:nrows, DemandAndCost = y2, Group = rep(y2_title, nrows+1))
+  line_3 <- data.frame(TimePeriod = 0:nrows, DemandAndCost = y3, Group = rep(y3_title, nrows+1))
+  line_4 <- data.frame(TimePeriod = 0:nrows, DemandAndCost = y4, Group = rep(y4_title, nrows+1))
+  dat <- rbind(line_1,line_2,line_3,line_4)
+  ggplot(dat, aes(x=TimePeriod, y=DemandAndCost, group=Group, colour=Group)) + geom_point(size=1.5,alpha=.7) + ggtitle(title) + theme(legend.position = "none", axis.text=element_text(size=6),axis.title=element_text(size=10), title=element_text(size=9))
+}
+
+#Independent Normal
+AccumulativeDemandAndCost_Normal <- plot_graph(db_output01$AccumulativeDemand, "DualBalancingAccumulativeDemand", db_output01$AccumulativeCost,"DualBalancingAccumulativeCost",my_output01$AccumulativeDemand,"MyopicAccumulativeDemand",my_output01$AccumulativeCost,"MyopicAccumulativeCost","AccumulativeDemandAndCost",100,"Accumulative Demand vs. Accumulative Cost:\n Independent Normal")
+#Binomial Increment
+AccumulativeDemandAndCost_Binomial <- plot_graph(db_output02$AccumulativeDemand, "DualBalancingAccumulativeDemand", db_output02$AccumulativeCost,"DualBalancingAccumulativeCost",my_output02$AccumulativeDemand,"MyopicAccumulativeDemand",my_output02$AccumulativeCost,"MyopicAccumulativeCost","AccumulativeDemandAndCost",100,"Accumulative Demand vs. Accumulative Cost:\n Binomial Increment")
+#Brownian Motion with Drift
+AccumulativeDemandAndCost_Brownian <- plot_graph(db_output03$AccumulativeDemand, "DualBalancingAccumulativeDemand", db_output03$AccumulativeCost,"DualBalancingAccumulativeCost",my_output03$AccumulativeDemand,"MyopicAccumulativeDemand",my_output03$AccumulativeCost,"MyopicAccumulativeCost","AccumulativeDemandAndCost",100,"Accumulative Demand vs. Accumulative Cost:\n Brownian Motion with Drift")
+#3-period Markov Chain
+AccumulativeDemandAndCost_Markov <- plot_graph(db_output04$AccumulativeDemand, "DualBalancingAccumulativeDemand", db_output04$AccumulativeCost,"DualBalancingAccumulativeCost",my_output04$AccumulativeDemand,"MyopicAccumulativeDemand",my_output04$AccumulativeCost,"MyopicAccumulativeCost","AccumulativeDemandAndCost",100,"Accumulative Demand vs. Accumulative Cost:\n 3-period Markov Chain")
+
+#Independent Normal
+DemandAndNetInventory_Normal <- plot_graph(db_output01$Demand, "DualBalancingDemand", db_output01$NetInventory,"DualBalancingNetInventory",my_output01$Demand,"MyopicDemand",my_output01$NetInventory,"MyopicNetInventory","DemandAndNetInventory",100,"Demand vs. Net Inventory:\n Independent Normal")
+#Binomial Increment
+DemandAndNetInventory_Binomial <- plot_graph(db_output02$Demand, "DualBalancingDemand", db_output02$NetInventory,"DualBalancingNetInventory",my_output02$Demand,"MyopicDemand",my_output02$NetInventory,"MyopicNetInventory","DemandAndNetInventory",100,"Demand vs. Net Inventory:\n Binomial Increment")
+#Brownian Motion with Drift
+DemandAndNetInventory_Brownian <- plot_graph(db_output03$Demand, "DualBalancingDemand", db_output03$NetInventory,"DualBalancingNetInventory",my_output03$Demand,"MyopicDemand",my_output03$NetInventory,"MyopicNetInventory","DemandAndNetInventory",100,"Demand vs. Net Inventory:\n Brownian Motion with Drift")
+#3-period Markov Chain
+DemandAndNetInventory_Markov <- plot_graph(db_output04$Demand, "DualBalancingDemand", db_output04$NetInventory,"DualBalancingNetInventory",my_output04$Demand,"MyopicDemand",my_output04$NetInventory,"MyopicNetInventory","DemandAndNetInventory",100,"Demand vs. Net Inventory:\n 3-period Markov Chain")
+
+#Myopic Bad: Demand
+MyopicBadDemand <- plot_2_graph(myopic_bad_case$DemandMY, "MyopicDemand", myopic_bad_case$DemandDB,"DualBalancingDemand","blah",200,"Myopic Bad Case: Comparing Demand") + geom_point()
+#Myopic Bad: Net Inventory
+MyopicBadNetInventory <- plot_2_graph(myopic_bad_case$NetInventoryMY, "MyopicNetInventory", myopic_bad_case$NetInventoryDB,"DualBalancingNetInventory","blah",200,"Myopic Bad Case: Comparing Net Inventory") + geom_line()
+#Myopic Bad: Cumulative Cost
+MyopicBadAccumulativeCost <- plot_2_graph(myopic_bad_case$AccumulativeCostMY, "MyopicAccumulativeCost", myopic_bad_case$AccumulativeCostDB,"DualBalancingAccumulativeCost","blah",200,"Myopic Bad Case: Comparing Accumulative Cost") + geom_line()
+#Myopic Bad: Ordering
+MyopicBadOrdering <- plot_2_graph(myopic_bad_case$OrderingMY, "MyopicOrdering", myopic_bad_case$OrderingDB,"DualBalancingOrdering","blah",200,"Myopic Bad Case: Comparing Ordering")+xlim(0,30) + geom_line()
+
+ggsave(MyopicBadDemand,file="MyopicBadDemand.png", scale=.5)
+ggsave(MyopicBadNetInventory,file="MyopicBadNetInventory.png", scale=.5)
+ggsave(MyopicBadAccumulativeCost,file="MyopicBadAccumulativeCost.png", scale=.5)
+ggsave(MyopicBadOrdering,file="MyopicBadOrdering.png", scale=.5)
+
+#ggsave(AccumulativeDemandAndCost_Normal,file="AccumulativeDemandAndCost_Normal.png", scale=.5)
+#ggsave(AccumulativeDemandAndCost_Binomial,file="AccumulativeDemandAndCost_Binomial.png", scale=.5)
+#ggsave(AccumulativeDemandAndCost_Brownian,file="AccumulativeDemandAndCost_Brownian.png", scale=.5)
+#ggsave(AccumulativeDemandAndCost_Markov,file="AccumulativeDemandAndCost_Markov.png", scale=.5)
+
+#ggsave(DemandAndNetInventory_Normal,file="DemandAndNetInventory_Normal.png", scale=.5)
+#ggsave(DemandAndNetInventory_Binomial,file="DemandAndNetInventory_Binomial.png", scale=.5)
+#ggsave(DemandAndNetInventory_Brownian,file="DemandAndNetInventory_Brownian.png", scale=.5)
+#ggsave(DemandAndNetInventory_Markov,file="DemandAndNetInventory_Markov.png", scale=.5)
+
+multiplot(p1,p2,p3,p4,cols=2)
+#multiplot(q1,q2,q3,q4,cols=2)
