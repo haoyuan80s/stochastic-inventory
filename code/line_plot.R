@@ -100,7 +100,7 @@ plot_graph <- function(y,y_title,y2,y2_title,y3,y3_title,y4,y4_title,y_axs_title
   line_3 <- data.frame(TimePeriod = 0:nrows, ParamValue = y3, Group = rep(y3_title, nrows+1))
   line_4 <- data.frame(TimePeriod = 0:nrows, ParamValue = y4, Group = rep(y4_title, nrows+1))
   dat <- rbind(line_1,line_2,line_3,line_4)
-  ggplot(dat, aes(x=TimePeriod, y=ParamValue, group=Group, colour=Group)) + geom_point(size=1.5,alpha=.7) + ggtitle(title) + theme(legend.position = "none", axis.text=element_text(size=6),axis.title=element_text(size=10), title=element_text(size=9))
+  ggplot(dat, aes(x=TimePeriod, y=ParamValue, group=Group, colour=Group)) + geom_point(size=1.5,alpha=.7) + ggtitle(title) + theme(axis.text=element_text(size=6),axis.title=element_text(size=10), title=element_text(size=9))
 }
 
 #Independent Normal
