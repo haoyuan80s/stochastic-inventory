@@ -92,7 +92,7 @@
                         &+V_{t+1}(x_t + q_t - D_t, d_{1..t-1},D_t)|d_{1..t-1}]
     \end{eqnarray*}
     
-    This gives us two derict ways to "solve" the problem:
+    This gives us two natural ways to "solve" the problem:
     \begin{itemize}
       \item 
         Dynamic Programming: solve for $q_t$ backwards using the formula above.
@@ -103,15 +103,34 @@
   \end{frame}
 
 \begin{frame}
-Remark: 
+Recall: 
+    \begin{eqnarray*}
+    V_T(x_T,d_{1..T-1}) =& \min_{q_T \geq 0} E[L_T(x_T,D_T,q_T) | d_{1..T-1}]\\
+    V_t(x_t,d_{1..t-1}) =& \min_{q_t \geq 0} E[L_t(x_t,D_t,q_t)\\
+                        &+V_{t+1}(x_t + q_t - D_t, d_{1..t-1},D_t)|d_{1..t-1}]
+    \end{eqnarray*}
     \begin{itemize}
       \item 
-        If we consider leading time $L$ (i.e. it takes $L$ periods to receive our order.) Then the only change is that we modify:
+        At period $s>t$, $D_s$ is a random variable that depends on perivous demands $d_1, d_2,...,d_{t+1},...,d_{s-1}$.\\
+        To compute the above conditional expectation, we need to work on $q_t,...,q_T$ which are are our future decision.\\
+      \item
+        Myopic approach works extremly good on many cases, but may perform extremly bad on some cases. (Bad case example will be shown at the end of the talk.)
+    \end{itemize}
+\end{frame}
+
+
+\begin{frame}
+    \begin{itemize}
+      \item 
+        In fact we also need to consider leading time $L \neq 0$ (i.e. it takes $L$ periods to receive our order.) Then we need to modify:
         \begin{eqnarray*}
-          x_t & := Nat~Inventory + Undelived~orders.\\
-          L_t(x_t,d_{t..t+L},q_t)& :=c_tq_t + h_{t+L}(x_t + q_t - \sum d_{t..t+L})^{+} \\ &  + p_{t+L}(x_t + q_T - \sum d_{t..t+L})^{-}
+          x_t & := Net~Inventory + Undelived~orders\\
+              & := Net~Inventory + \sum_{j = t - L+1}^{t-1} q_j\\
+          L_t(x_t,d_{t..t+L},q_t)& :=c_tq_t + h_{t+L}(x_t + q_t - \sum d_{t..t+L})^{+} \\ 
+                                &  + p_{t+L}(x_t + q_T - \sum d_{t..t+L})^{-}
         \end{eqnarray*}
-        ***$ \sum d_{t..t+L} := d_t + ... + d_{t+L}$
+        ***$ \sum d_{t..t+L} := d_t + ... + d_{t+L}$\\
+        %***$Undelived~orders := \sum_{j = t - L+1}^{t-1} q_j$
       \item
         We can assume $c_t = 0$ by doing the transformation:
         \begin{eqnarray*}
@@ -123,35 +142,28 @@ Remark:
       \end{itemize}
 \end{frame}
 
-\begin{frame}
-Remark: 
-    \begin{itemize}
-      \item 
-        At period $t$, $D_t$ is a random variable that depends on perivous demands $d_{1..t-1} := {d_1,d_2,...,d_{t-1}}$, which leads the dynamic programming approach untrackable.
-      \item
-        Myopic approach works good on many cases, but may perform extremly bad on some cases. (will see example in following slides)
-    \end{itemize}
-\end{frame}
-
 
 \begin{frame}
-    \frametitle{Idea for Dual-Balancing Approach}    
-     Myopic approach minimzie:\\
-     {\em Ordering Cost + Holding Cost + Backlogging Cost},\\
-      which underestimates holding cost, since it only consider it for one period.\\
-    Dual-Balancing gives a better way to count holding cost, called {\em Marginal Holding Cost}:
-    $H_t(x_t,q_t) := \sum_{j = t+L}^{T} h_j (q_t - (\sum D_{t..j} - x_t)^+)^+$.
-
-    Picture Here!!!\\
-    Algorithm for Dual-Balancing apporach:
+    \frametitle{Dual-Balancing Algotrithm}
+    Recall {\em Local Backlogging Cost}: 
+    $$\Pi_t(x_t,q_t) := p_{t+L}(x_t + q_T - \sum D_{t..t+L})^{-}$$
+    Now, we define {\em Marginal Holding Cost}:
+    $$H_t(x_t,q_t) := \sum_{j = t+L}^{T} h_j (q_t - (\sum D_{t..j} - x_t)^+)^+$$.
+    Dual-Balancing Algorithm:
     \begin{itemize}
       \item 
         Do transformation make ordering cost 0.
       \item
-        We choose $q_t$ such that\\
-        {\em Expected Marginal Holding Cost} = {\em Expected (Marginal) Backloging Cost}. i.e.\\
-        $E[H_t(x_t,q_t)| d_{1..t-1}] = E[p_{t+l}(\sum D_{t..t+L} (x_t + q_t))^+ | d_{1..t-1}]$
+        Solve the convex optimaztion problem 
+        $$q_t = argmin \max{E[H_t(x_t,q_t)| d_{1..t-1}], E[\Pi_t(x_t,q_t)| d_{1..t-1}]}$$
+        in order to find out $q_t$ such that
+        $$E[H_t(x_t,q_t)| d_{1..t-1}] = E[\Pi_t(x_t,q_t)| d_{1..t-1}]$$
     \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Coding and Chanllenge}    
+    
 \end{frame}
 
 \begin{frame}
@@ -177,6 +189,9 @@ Remark:
       The myopic approach focuses only on minimizing the expected immediate cost that is going to be incurred in each period, while ignoring the cost over the rest of the horizon.
       \[c_{t}\left(q_{t}\right)+E\left[h_{t}\left(x_{t}+q_{t}-D_{t}\right)^{+}+p_{t}\left(x_{t}+q_{t}-D_{t}\right)^{-}\right]\]
     \end{frame}
+
+
+
 
     \subsection{Dual-Balancing Problem}
     \begin{frame}
