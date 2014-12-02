@@ -7,6 +7,8 @@
 #include"IC_Support.h"
 using namespace std;
 
+double duration=0;
+
 //Data Collection Function
 int DataCollector();
 
@@ -124,7 +126,7 @@ int Samples<W>::Update(){
 		x[i]=x[i]+((double)policy.x[i])/N;
 		d[i]=d[i]+((double)policy.d[i])/N;
 		q[i]=q[i]+((double)policy.q[i])/N;
-		NI[i]=NI[i]+((double)policy.NI[i])/N;
+		NI[i]=NI[i]+abs(((double)policy.NI[i])/N);
 		C_accum[i]=C_accum[i]+policy.C_accum[i]/N;
 		Ch_accum[i]=Ch_accum[i]+policy.Ch_accum[i]/N;
 		Cp_accum[i]=Cp_accum[i]+policy.Cp_accum[i]/N;
@@ -137,11 +139,15 @@ int Samples<W>::Update(){
 template<class W>
 int Samples<W>::AverageGenerator(){
 	int i;
+	double start,finish;
+	start=clock();
 	for(i=1;i<=N;i++){
 		Update();
 		policy.cur=0;
 		cout<<'\r'<<"Computing the "<<setw(5)<<i<<"th simulation for T="<<setw(5)<<T;
 	}
+	finish=clock();
+	duration=(double)(finish-start)/CLOCKS_PER_SEC;
 	total_C=C_accum[T];
 	total_Ch=Ch_accum[T];
 	total_Cp=Cp_accum[T];
@@ -359,6 +365,8 @@ int Samples<W>::autofoutput(int j){
 			int i;
 			int rd_p_size=rd_p.size();
 			fout.precision(4);
+			cout<<"The time it takes to compute per each caseis "<<duration/N<<" secs"<<endl;
+			fout<<"The time it takes to compute per each caseis "<<duration/N<<" secs"<<endl;
 			fout<<"The data is average of running the code "<<N<<" many times."<<endl;
 			fout<<"Planning Horizon is: "<<T<<endl;
 			fout<<"Leading Time is: "<<L<<endl;
@@ -377,7 +385,7 @@ int Samples<W>::autofoutput(int j){
 			fout<<"Total Holding Cost is: "<<total_Ch<<endl;
 			fout<<"Total Backlogging Cost is: "<<total_Cp<<endl;
 			fout<<endl;
-
+/*
 			fout<<"Period"<<endl;
 			for(i=0;i<=T;i++)
 				fout<<setw(11)<<i;
@@ -429,6 +437,59 @@ int Samples<W>::autofoutput(int j){
 			fout<<"Accumulative Backlogging Cost"<<endl;
 			for(i=0;i<=T;i++)
 				fout<<setw(11)<<Cp_accum[i];
+			fout<<endl<<endl;
+*/
+			fout<<"Period"<<endl;
+			for(i=0;i<=T;i++)
+				fout<<i<<endl;
+			fout<<endl<<endl;
+			fout<<"InventoryPosition"<<endl;
+			for(i=0;i<=T;i++)
+				fout<<x[i]<<endl;
+			fout<<endl<<endl;
+			fout<<"NetInventory"<<endl;
+			for(i=0;i<=T;i++)
+				fout<<NI[i]<<endl;
+			fout<<endl<<endl;
+			fout<<"Cost"<<endl;
+			for(i=0;i<=T;i++)
+				fout<<C[i]<<endl;
+			fout<<endl<<endl;
+			fout<<"Demand"<<endl;
+			for(i=0;i<=T;i++)
+				fout<<d[i]<<endl;
+			fout<<endl<<endl;
+			fout<<"Ordering"<<endl;
+			for(i=0;i<=T;i++)
+				fout<<q[i]<<endl;
+			fout<<endl<<endl;
+			fout<<"HoldingCost"<<endl;
+			for(i=0;i<=T;i++)
+				fout<<Ch[i]<<endl;
+			fout<<endl<<endl;
+			fout<<"BackloggingCost"<<endl;
+			for(i=0;i<=T;i++)
+				fout<<Cp[i]<<endl;
+			fout<<endl<<endl;
+			fout<<"AccumulativeCost"<<endl;
+			for(i=0;i<=T;i++)
+				fout<<C_accum[i]<<endl;
+			fout<<endl<<endl;
+			fout<<"AccumulativeDemand"<<endl;
+			for(i=0;i<=T;i++)
+				fout<<d_accum[i]<<endl;
+			fout<<endl<<endl;
+			fout<<"AccumulativeOrdering"<<endl;
+			for(i=0;i<=T;i++)
+				fout<<q_accum[i]<<endl;
+			fout<<endl<<endl;
+			fout<<"AccumulativeHolding Cost"<<endl;
+			for(i=0;i<=T;i++)
+				fout<<Ch_accum[i]<<endl;
+			fout<<endl<<endl;
+			fout<<"AccumulativeBacklogging Cost"<<endl;
+			for(i=0;i<=T;i++)
+				fout<<Cp_accum[i]<<endl;
 			fout<<endl<<endl;
 
 			fout.close();
@@ -622,27 +683,31 @@ int DataCollector(){
 						cout<<'\r'<<"Outputing data now...."<<setw(30)<<' '<<endl;
 						fout<<"Period"<<endl;
 						for(ii=0;ii<vTv_l;ii++)
-							fout<<setw(11)<<vTv[ii];
+							fout<<vTv[ii]<<endl;
 						fout<<endl<<endl;
-						fout<<"Total Cost"<<endl;
+						fout<<"TotalCost"<<endl;
 						for(ii=0;ii<vTv_l;ii++)
-								fout<<setw(11)<<results[ii][0];
+								fout<<results[ii][0]<<endl;
 						fout<<endl<<endl;
-						fout<<"Total Holding Cost"<<endl;
+						fout<<"TotalHolding Cost"<<endl;
 						for(ii=0;ii<vTv_l;ii++)
-								fout<<setw(11)<<results[ii][1];
+								fout<<results[ii][1]<<endl;
 						fout<<endl<<endl;
-						fout<<"Total Backlogging Cost"<<endl;
+						fout<<"TotalBacklogging Cost"<<endl;
 						for(ii=0;ii<vTv_l;ii++)
-								fout<<setw(11)<<results[ii][2];
+								fout<<results[ii][2]<<endl;
 						fout<<endl<<endl;
-						fout<<"Total Demand"<<endl;
+						fout<<"TotalDemand"<<endl;
 						for(ii=0;ii<vTv_l;ii++)
-								fout<<setw(11)<<results[ii][3];
+								fout<<results[ii][3]<<endl;
 						fout<<endl<<endl;
-						fout<<"Total Ordering"<<endl;
+						fout<<"TotalOrdering"<<endl;
 						for(ii=0;ii<vTv_l;ii++)
-								fout<<setw(11)<<results[ii][4];
+								fout<<results[ii][4]<<endl;
+						fout<<endl<<endl;
+						fout<<"TotalCost/TotalDemand"<<endl;
+						for(ii=0;ii<vTv_l;ii++)
+								fout<<results[ii][0]/results[ii][0]<<endl;
 						fout<<endl<<endl;
 						
 
