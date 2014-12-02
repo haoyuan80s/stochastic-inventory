@@ -1,4 +1,14 @@
+#TODO: Written in hurry. Clean up this mess and reuse functions
+
 library(ggplot2)
+
+db_illustration <- read.csv("output/db_illustration.csv")
+db_ill_NetInventory <- data.frame(TimePeriod = 0:20, ParameterValue=db_illustration$NetInventory, Group = rep("NetInventory", 21))
+db_ill_Cost <- data.frame(TimePeriod = 0:20, ParameterValue=db_illustration$Cost, Group = rep("Cost", 21))
+db_ill_Demand <- data.frame(TimePeriod = 0:20, ParameterValue=db_illustration$Demand, Group = rep("Demand", 21))
+db_ill_Ordering <- data.frame(TimePeriod = 0:20, ParameterValue=db_illustration$Ordering, Group = rep("Ordering", 21))
+db_ill_dat <- rbind(db_ill_NetInventory,db_ill_Cost,db_ill_Demand,db_ill_Ordering)
+DualBalancingParameters <- ggplot(db_ill_dat, aes(x=TimePeriod, y=ParameterValue, group=Group, colour=Group)) + geom_line(size=1.5) + ggtitle("Dual Balancing Parameters") + theme(axis.text=element_text(size=6),axis.title=element_text(size=6), title=element_text(size=8),legend.position='bottom',legend.title = element_text(color="#ffffff",size=10),legend.text = element_text(size=6))
 
 db_output01 <- read.csv("output/db_output01.csv")
 db_output02 <- read.csv("output/db_output02.csv")
@@ -15,18 +25,28 @@ myopic_bad_case <- read.csv("output/myopic_bad_case.csv")
 tc_to <- read.csv("output/tc_to.csv")
 tc_to_y <- (tc_to$TotalCostN/tc_to$TotalOrderingN)
 tc_to_y_2 <- (tc_to$TotalCostIN/tc_to$TotalOrderingIN)
-tc_to_x <- (0:20)*20
+tc_to_x <- (0:19)*20
+line_1 <- data.frame(TimePeriod = tc_to_x, TotalCostToOrderRatio = tc_to_y, Group = rep("Independent Normal", length(tc_to_x)))
+line_2 <- data.frame(TimePeriod = tc_to_x, TotalCostToOrderRatio = tc_to_y_2, Group = rep("Normal Increment", length(tc_to_x)))
+tc_to_dat <- rbind(line_1,line_2)
+TotalCostToOrderRatio <- ggplot(tc_to_dat, aes(x=TimePeriod, y=TotalCostToOrderRatio, group=Group, colour=Group)) + geom_line(size=1.5)+ylim(2.75,4) + ggtitle("Cost Demand Ratio") + theme(axis.text=element_text(size=6),axis.title=element_text(size=6), title=element_text(size=8),legend.position='bottom',legend.title = element_text(color="#ffffff",size=10),legend.text = element_text(size=6))
 
 net_inv_1 <- read.csv("output/net_inv_1.csv")
 net_inv_2 <- read.csv("output/net_inv_2.csv")
-net_inv_1$NetInventory0
-net_inv_1$NetInventory20
-net_inv_1$NetInventory40
-net_inv_1$NetInventory60
-net_inv_2$NetInventory0
-net_inv_2$NetInventory20
-net_inv_2$NetInventory40
-net_inv_2$NetInventory60
+
+ni_1_line_1 <- data.frame(TimePeriod = 0:30, NetInventory = net_inv_1$NetInventory0, Group = rep("x=0", 31))
+ni_1_line_2 <- data.frame(TimePeriod = 0:30, NetInventory = net_inv_1$NetInventory20, Group = rep("x=20", 31))
+ni_1_line_3 <- data.frame(TimePeriod = 0:30, NetInventory = net_inv_1$NetInventory40, Group = rep("x=40", 31))
+ni_1_line_4 <- data.frame(TimePeriod = 0:30, NetInventory = net_inv_1$NetInventory60, Group = rep("x=60", 31))
+net_inv_1_dat <- rbind(ni_1_line_1,ni_1_line_2,ni_1_line_3,ni_1_line_4)
+NetInventory <- ggplot(net_inv_1_dat, aes(x=TimePeriod, y=NetInventory, group=Group, colour=Group)) + geom_line(size=1) + ggtitle("Net Inventory") + theme(axis.text=element_text(size=6),axis.title=element_text(size=6), title=element_text(size=8),legend.position='bottom',legend.title = element_text(color="#ffffff",size=10),legend.text = element_text(size=6))
+
+ni_2_line_1 <- data.frame(TimePeriod = 0:30, LeadTime = net_inv_2$LeadTime2, Group = rep("L=2", 31))
+ni_2_line_2 <- data.frame(TimePeriod = 0:30, LeadTime = net_inv_2$LeadTime4, Group = rep("L=4", 31))
+ni_2_line_3 <- data.frame(TimePeriod = 0:30, LeadTime = net_inv_2$LeadTime6, Group = rep("L=6", 31))
+ni_2_line_4 <- data.frame(TimePeriod = 0:30, LeadTime = net_inv_2$LeadTime8, Group = rep("L=8", 31))
+net_inv_2_dat <- rbind(ni_2_line_1,ni_2_line_2,ni_2_line_3,ni_2_line_4)
+LeadTime <- ggplot(net_inv_2_dat, aes(x=TimePeriod, y=LeadTime, group=Group, colour=Group)) + geom_line(size=1) + ggtitle("Lead Time") + theme(axis.text=element_text(size=6),axis.title=element_text(size=6), title=element_text(size=8),legend.position='bottom',legend.title = element_text(color="#ffffff",size=10),legend.text = element_text(size=6))
 
 #dp_output01 <- read.csv("output/dp_output01.csv")
 #dp_output02 <- read.csv("output/dp_output02.csv")
@@ -68,19 +88,19 @@ g_legend<-function(a.gplot){
   return(legend)}
 
 plot_2_graph <- function(y,y_title,y2,y2_title,y_axs_title,nrows,title) {
-  line_1 <- data.frame(TimePeriod = 0:nrows, DemandAndCost = y, Group = rep(y_title, nrows+1))
-  line_2 <- data.frame(TimePeriod = 0:nrows, DemandAndCost = y2, Group = rep(y2_title, nrows+1))
+  line_1 <- data.frame(TimePeriod = 0:nrows, ParamValue = y, Group = rep(y_title, nrows+1))
+  line_2 <- data.frame(TimePeriod = 0:nrows, ParamValue = y2, Group = rep(y2_title, nrows+1))
   dat <- rbind(line_1,line_2)
-  ggplot(dat, aes(x=TimePeriod, y=DemandAndCost, group=Group, colour=Group)) + ggtitle(title) + theme(axis.text=element_text(size=6),axis.title=element_text(size=6), title=element_text(size=8),legend.position='bottom',legend.title = element_text(color="#ffffff",size=10),legend.text = element_text(size=6))
+  ggplot(dat, aes(x=TimePeriod, y=ParamValue, group=Group, colour=Group)) + ggtitle(title) + theme(axis.text=element_text(size=6),axis.title=element_text(size=6), title=element_text(size=8),legend.position='bottom',legend.title = element_text(color="#ffffff",size=10),legend.text = element_text(size=6))
 }
 
 plot_graph <- function(y,y_title,y2,y2_title,y3,y3_title,y4,y4_title,y_axs_title,nrows,title) {
-  line_1 <- data.frame(TimePeriod = 0:nrows, DemandAndCost = y, Group = rep(y_title, nrows+1))
-  line_2 <- data.frame(TimePeriod = 0:nrows, DemandAndCost = y2, Group = rep(y2_title, nrows+1))
-  line_3 <- data.frame(TimePeriod = 0:nrows, DemandAndCost = y3, Group = rep(y3_title, nrows+1))
-  line_4 <- data.frame(TimePeriod = 0:nrows, DemandAndCost = y4, Group = rep(y4_title, nrows+1))
+  line_1 <- data.frame(TimePeriod = 0:nrows, ParamValue = y, Group = rep(y_title, nrows+1))
+  line_2 <- data.frame(TimePeriod = 0:nrows, ParamValue = y2, Group = rep(y2_title, nrows+1))
+  line_3 <- data.frame(TimePeriod = 0:nrows, ParamValue = y3, Group = rep(y3_title, nrows+1))
+  line_4 <- data.frame(TimePeriod = 0:nrows, ParamValue = y4, Group = rep(y4_title, nrows+1))
   dat <- rbind(line_1,line_2,line_3,line_4)
-  ggplot(dat, aes(x=TimePeriod, y=DemandAndCost, group=Group, colour=Group)) + geom_point(size=1.5,alpha=.7) + ggtitle(title) + theme(legend.position = "none", axis.text=element_text(size=6),axis.title=element_text(size=10), title=element_text(size=9))
+  ggplot(dat, aes(x=TimePeriod, y=ParamValue, group=Group, colour=Group)) + geom_point(size=1.5,alpha=.7) + ggtitle(title) + theme(legend.position = "none", axis.text=element_text(size=6),axis.title=element_text(size=10), title=element_text(size=9))
 }
 
 #Independent Normal
@@ -110,20 +130,23 @@ MyopicBadAccumulativeCost <- plot_2_graph(myopic_bad_case$AccumulativeCostMY, "M
 #Myopic Bad: Ordering
 MyopicBadOrdering <- plot_2_graph(myopic_bad_case$OrderingMY, "MyopicOrdering", myopic_bad_case$OrderingDB,"DualBalancingOrdering","blah",200,"Myopic Bad Case: Comparing Ordering")+xlim(0,30) + geom_line()
 
-ggsave(MyopicBadDemand,file="MyopicBadDemand.png", scale=.5)
-ggsave(MyopicBadNetInventory,file="MyopicBadNetInventory.png", scale=.5)
-ggsave(MyopicBadAccumulativeCost,file="MyopicBadAccumulativeCost.png", scale=.5)
-ggsave(MyopicBadOrdering,file="MyopicBadOrdering.png", scale=.5)
+ggsave(MyopicBadDemand,file="figures/MyopicBadDemand.png", scale=.5)
+ggsave(MyopicBadNetInventory,file="figures/MyopicBadNetInventory.png", scale=.5)
+ggsave(MyopicBadAccumulativeCost,file="figures/MyopicBadAccumulativeCost.png", scale=.5)
+ggsave(MyopicBadOrdering,file="figures/MyopicBadOrdering.png", scale=.5)
+ggsave(AccumulativeDemandAndCost_Normal,file="figures/AccumulativeDemandAndCost_Normal.png", scale=.5)
+ggsave(AccumulativeDemandAndCost_Binomial,file="figures/AccumulativeDemandAndCost_Binomial.png", scale=.5)
+ggsave(AccumulativeDemandAndCost_Brownian,file="figures/AccumulativeDemandAndCost_Brownian.png", scale=.5)
+ggsave(AccumulativeDemandAndCost_Markov,file="figures/AccumulativeDemandAndCost_Markov.png", scale=.5)
+ggsave(DemandAndNetInventory_Normal,file="figures/DemandAndNetInventory_Normal.png", scale=.5)
+ggsave(DemandAndNetInventory_Binomial,file="figures/DemandAndNetInventory_Binomial.png", scale=.5)
+ggsave(DemandAndNetInventory_Brownian,file="figures/DemandAndNetInventory_Brownian.png", scale=.5)
+ggsave(DemandAndNetInventory_Markov,file="figures/DemandAndNetInventory_Markov.png", scale=.5)
+ggsave(DualBalancingParameters,file="figures/DualBalancingParameters.png", scale=.5)
+ggsave(TotalCostToOrderRatio,file="figures/TotalCostToOrderRatio.png", scale=.5)
 
-#ggsave(AccumulativeDemandAndCost_Normal,file="AccumulativeDemandAndCost_Normal.png", scale=.5)
-#ggsave(AccumulativeDemandAndCost_Binomial,file="AccumulativeDemandAndCost_Binomial.png", scale=.5)
-#ggsave(AccumulativeDemandAndCost_Brownian,file="AccumulativeDemandAndCost_Brownian.png", scale=.5)
-#ggsave(AccumulativeDemandAndCost_Markov,file="AccumulativeDemandAndCost_Markov.png", scale=.5)
-
-#ggsave(DemandAndNetInventory_Normal,file="DemandAndNetInventory_Normal.png", scale=.5)
-#ggsave(DemandAndNetInventory_Binomial,file="DemandAndNetInventory_Binomial.png", scale=.5)
-#ggsave(DemandAndNetInventory_Brownian,file="DemandAndNetInventory_Brownian.png", scale=.5)
-#ggsave(DemandAndNetInventory_Markov,file="DemandAndNetInventory_Markov.png", scale=.5)
+ggsave(NetInventory,file="figures/NetInventory.png", scale=.5)
+ggsave(LeadTime,file="figures/LeadTime.png", scale=.5)
 
 multiplot(p1,p2,p3,p4,cols=2)
 #multiplot(q1,q2,q3,q4,cols=2)
