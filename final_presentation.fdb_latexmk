@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1417490116 "final_presentation.tex" "final_presentation.pdf" "final_presentation" 1417490118
+["pdflatex"] 1417492630 "final_presentation.tex" "final_presentation.pdf" "final_presentation" 1417492631
   "/usr/local/texlive/2014/texmf-dist/tex/context/base/supp-pdf.mkii" 1337017135 71627 94eb9990bed73c364d7f53f960cc8c5b ""
   "/usr/local/texlive/2014/texmf-dist/tex/generic/ifxetex/ifxetex.sty" 1284331290 1458 43ab4710dc82f3edeabecd0d099626b2 ""
   "/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/atbegshi.sty" 1335995445 24460 92f559a71aac869021852c227c704b38 ""
@@ -146,14 +146,14 @@
   "/usr/local/texlive/2014/texmf-dist/tex/latex/url/url.sty" 1388531844 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "/usr/local/texlive/2014/texmf-dist/tex/latex/xcolor/xcolor.sty" 1169481954 55224 a43bab84e0ac5e6efcaf9a98bde73a94 ""
   "beamerthemeAmsterdam.sty" 1417107953 1188 f484364514e415179aeb1a19f0523b26 ""
-  "final_presentation.aux" 1417490118 8410 67102b345f49b1c12a2484f07bf9cd3c ""
-  "final_presentation.nav" 1417490118 4928 b8cb777f97234c1c56354e7495dd6983 ""
-  "final_presentation.out" 1417490118 1254 c61846441ef89f76e764d809b9d84ff5 ""
-  "final_presentation.tex" 1417490099 9483 e9995203cbdcab28e270607ff84e2f9d ""
+  "final_presentation.aux" 1417492631 4041 88c2e0d577126ac69246caf747a634df ""
+  "final_presentation.nav" 1417492631 2234 d4e29fe04ffd94dc143ba3c240e0bb41 ""
+  "final_presentation.out" 1417492631 350 ee5006ab944cc845390e918860bc1698 ""
+  "final_presentation.tex" 1417492629 8289 fc8abc83278188eb7ac14e325d96953f ""
   "purchasing.png" 1417459149 51708 48a37f983e09b959ea7e6fdfc6b458c8 ""
   (generated)
-  "final_presentation.out"
   "final_presentation.nav"
   "final_presentation.pdf"
   "final_presentation.aux"
+  "final_presentation.out"
   "final_presentation.log"

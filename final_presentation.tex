@@ -155,81 +155,37 @@ Recall:
         Do transformation make ordering cost 0.
       \item
         Solve the convex optimaztion problem 
-        $$q_t = argmin \max{E[H_t(x_t,q_t)| d_{1..t-1}], E[\Pi_t(x_t,q_t)| d_{1..t-1}]}$$
-        in order to find out $q_t$ such that
-        $$E[H_t(x_t,q_t)| d_{1..t-1}] = E[\Pi_t(x_t,q_t)| d_{1..t-1}]$$
+        $$q_t^* = argmin_{q_t > 0} \max{E[H_t(x_t,q_t)| d_{1..t-1}], E[\Pi_t(x_t,q_t)| d_{1..t-1}]}$$
+        in order to find out $q_t^*$ such that
+        $$E[H_t(x_t,q_t^*)| d_{1..t-1}] = E[\Pi_t(x_t,q_t^*)| d_{1..t-1}]$$
     \end{itemize}
 \end{frame}
 
 \begin{frame}
-    \frametitle{Coding and Chanllenge}    
+    \frametitle{Coding and Chanllenges}    
     
 \end{frame}
 
 \begin{frame}
-    \frametitle{Chanllenge in the Project}    
-    
+In following simulations:
+    \begin{itemize}
+      \item We always let $c_t = 3, h_t = 1, p_t = 2$.
+      \item Without specific mention, time horize $T = 100, L = 5, x_0 = 0$.
+      \item The sample size is 20, if we do averages.
+      \item We considered four different demands (i.e. $D_t$) distribution:\\
+            1. $D_t = N(50,5)$ are iid.\\
+            2. $D_t-D_{t-1} = N(5,1.581)$ with $D_0=30$.\\
+            3. $D_t-D_{t-1} = B(10,0.5)$ with $D_0=30$.\\
+            4. $D_t- (D_{t-1} + D_{t-2} + D_{t-3})/3 = N(5,1.581)$ with $D_0=30$.
+    \end{itemize}
 \end{frame}
 
+\begin{frame}
+    \frametitle{Reference}    
+    $[1]$ Iida, T., P. H. Zipkin. 2006. Approximate solutions of a dynamic forecast-inventory model. Manufacturing Service Oper. Management
+8 407–425.\\
 
-  \section{The Algorithm and Computational Approaches}
-    \subsection{Dynamic Programming}
-    \begin{frame}
-    \frametitle{Dynamic Programming}
-      \begin{itemize}
-        \item Let $V_{t}\left(x_{t}\right)$ be the optimal expected cost over over periods $t=t,\cdots,T.$
-        \item Using dynamic programming, we can solve each $V_{t}$
-        \item This approach would be accurate if it were feasible, but the term $E\left[V_{t+1}\left(x_{t}+q_{t}-D_{t}\right)\right]$ is very difficult to compute.
-      \end{itemize}
-    \end{frame}
-
-    \subsection{Myopic (Na{\"i}ve) Approach}
-    \begin{frame}
-    \frametitle{Myopic (Na{\"i}ve) Approach}
-      The myopic approach focuses only on minimizing the expected immediate cost that is going to be incurred in each period, while ignoring the cost over the rest of the horizon.
-      \[c_{t}\left(q_{t}\right)+E\left[h_{t}\left(x_{t}+q_{t}-D_{t}\right)^{+}+p_{t}\left(x_{t}+q_{t}-D_{t}\right)^{-}\right]\]
-    \end{frame}
-
-
-
-
-    \subsection{Dual-Balancing Problem}
-    \begin{frame}
-    \frametitle{Dual-Balancing Problem}
-      \[H_t^B(Q_t):=\sum\limits_{j=t+L}^T h_j(Q_t-(D_{[t,j]}-X_t)^+)^+\]
-      \[\Pi_t^B:=p_t(D_{[t,t+L]}-(X_t^B+Q_t))^+=p_t(D_{[t,t+L]}-Y_t^B)^+\]
-    \end{frame}
-
-    \subsection{Why Dual-Balancing?}
-    \begin{frame}
-    \frametitle{Why Dual-Balancing?}
-
-    \end{frame}
-  \section{Coding and Implementation}
-    \subsection{Coding and Implementation}
-    \begin{frame}
-    \frametitle{Coding and Implementation}
-
-    \end{frame}
-  \section{Results}
-    \subsection{Time Complexity}
-    \begin{frame}
-    \frametitle{Time Complexity}
-    Dual-balancing
-    Myopic
-    Dynamic Programming
-    \end{frame}
-    \subsection{Accuracy}
-    \begin{frame}
-    \frametitle{Accuracy}
-    Dual-balancing vs. Myopic
-    Dual-balancing vs. Dynamic Programming
-    \end{frame}
-  \section{Open Problems and Challenges in the Field of Stochastic Inventory Control}
-    \subsection{Open Problems and Challenges in the Field of Stochastic Inventory Control}
-    \begin{frame}
-    \frametitle{Open Problems and Challenges in the Field of Stochastic Inventory Control}
-
-    \end{frame}
+    $[2]$ Retsef Levi, Martin Pal, Robin Roundy and David Shmoys, 2007. Approximation Algorithms for Stochastic Inventory Control Models, Mathematics of Operations Research, Volume 32 (2), pages 284-302, 
+\end{frame}
 
 \end{document}
