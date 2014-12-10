@@ -41,12 +41,12 @@ ni_1_line_4 <- data.frame(TimePeriod = 0:30, NetInventory = net_inv_1$NetInvento
 net_inv_1_dat <- rbind(ni_1_line_1,ni_1_line_2,ni_1_line_3,ni_1_line_4)
 NetInventory <- ggplot(net_inv_1_dat, aes(x=TimePeriod, y=NetInventory, group=Group, colour=Group)) + geom_line(size=1) + ggtitle("Net Inventory") + theme(axis.text=element_text(size=6),axis.title=element_text(size=6), title=element_text(size=8),legend.position='bottom',legend.title = element_text(color="#ffffff",size=10),legend.text = element_text(size=6))
 
-ni_2_line_1 <- data.frame(TimePeriod = 0:30, LeadTime = net_inv_2$LeadTime2, Group = rep("L=2", 31))
-ni_2_line_2 <- data.frame(TimePeriod = 0:30, LeadTime = net_inv_2$LeadTime4, Group = rep("L=4", 31))
-ni_2_line_3 <- data.frame(TimePeriod = 0:30, LeadTime = net_inv_2$LeadTime6, Group = rep("L=6", 31))
-ni_2_line_4 <- data.frame(TimePeriod = 0:30, LeadTime = net_inv_2$LeadTime8, Group = rep("L=8", 31))
+ni_2_line_1 <- data.frame(TimePeriod = 0:30, NetInventory = net_inv_2$LeadTime2, Group = rep("L=2", 31))
+ni_2_line_2 <- data.frame(TimePeriod = 0:30, NetInventory = net_inv_2$LeadTime4, Group = rep("L=4", 31))
+ni_2_line_3 <- data.frame(TimePeriod = 0:30, NetInventory = net_inv_2$LeadTime6, Group = rep("L=6", 31))
+ni_2_line_4 <- data.frame(TimePeriod = 0:30, NetInventory = net_inv_2$LeadTime8, Group = rep("L=8", 31))
 net_inv_2_dat <- rbind(ni_2_line_1,ni_2_line_2,ni_2_line_3,ni_2_line_4)
-LeadTime <- ggplot(net_inv_2_dat, aes(x=TimePeriod, y=LeadTime, group=Group, colour=Group)) + geom_line(size=1) + ggtitle("Lead Time") + theme(axis.text=element_text(size=6),axis.title=element_text(size=6), title=element_text(size=8),legend.position='bottom',legend.title = element_text(color="#ffffff",size=10),legend.text = element_text(size=6))
+LeadTime <- ggplot(net_inv_2_dat, aes(x=TimePeriod, y=NetInventory, group=Group, colour=Group)) + geom_line(size=1) + ggtitle("Lead Time") + theme(axis.text=element_text(size=6),axis.title=element_text(size=6), title=element_text(size=8),legend.position='bottom',legend.title = element_text(color="#ffffff",size=10),legend.text = element_text(size=6))
 
 #dp_output01 <- read.csv("output/dp_output01.csv")
 #dp_output02 <- read.csv("output/dp_output02.csv")
@@ -100,7 +100,7 @@ plot_graph <- function(y,y_title,y2,y2_title,y3,y3_title,y4,y4_title,y_axs_title
   line_3 <- data.frame(TimePeriod = 0:nrows, ParamValue = y3, Group = rep(y3_title, nrows+1))
   line_4 <- data.frame(TimePeriod = 0:nrows, ParamValue = y4, Group = rep(y4_title, nrows+1))
   dat <- rbind(line_1,line_2,line_3,line_4)
-  ggplot(dat, aes(x=TimePeriod, y=ParamValue, group=Group, colour=Group)) + geom_point(size=1.5,alpha=.7) + ggtitle(title) + theme(axis.text=element_text(size=6),axis.title=element_text(size=10), title=element_text(size=9))
+  ggplot(dat, aes(x=TimePeriod, y=ParamValue, group=Group, colour=Group)) + geom_point(size=1.5,alpha=.7) + ggtitle(title) + theme(legend.position = "none",axis.text=element_text(size=6),axis.title=element_text(size=10), title=element_text(size=9))
 }
 
 #Independent Normal
@@ -122,13 +122,13 @@ DemandAndNetInventory_Brownian <- plot_graph(db_output03$Demand, "DualBalancingD
 DemandAndNetInventory_Markov <- plot_graph(db_output04$Demand, "DualBalancingDemand", db_output04$NetInventory,"DualBalancingNetInventory",my_output04$Demand,"MyopicDemand",my_output04$NetInventory,"MyopicNetInventory","DemandAndNetInventory",100,"Demand vs. Net Inventory:\n 3-period Markov Chain")
 
 #Myopic Bad: Demand
-MyopicBadDemand <- plot_2_graph(myopic_bad_case$DemandMY, "MyopicDemand", myopic_bad_case$DemandDB,"DualBalancingDemand","blah",200,"Myopic Bad Case: Comparing Demand") + geom_point()
+MyopicBadDemand <- plot_2_graph(myopic_bad_case$DemandMY, "MyopicDemand", myopic_bad_case$DemandDB,"DualBalancingDemand","blah",200,"Myopic Bad Case: Comparing Demand") + geom_point() +ylab("Demand")
 #Myopic Bad: Net Inventory
-MyopicBadNetInventory <- plot_2_graph(myopic_bad_case$NetInventoryMY, "MyopicNetInventory", myopic_bad_case$NetInventoryDB,"DualBalancingNetInventory","blah",200,"Myopic Bad Case: Comparing Net Inventory") + geom_line()
+MyopicBadNetInventory <- plot_2_graph(myopic_bad_case$NetInventoryMY, "MyopicNetInventory", myopic_bad_case$NetInventoryDB,"DualBalancingNetInventory","blah",200,"Myopic Bad Case: Comparing Net Inventory") + geom_line() +ylab("Net Inventory")
 #Myopic Bad: Cumulative Cost
-MyopicBadAccumulativeCost <- plot_2_graph(myopic_bad_case$AccumulativeCostMY, "MyopicAccumulativeCost", myopic_bad_case$AccumulativeCostDB,"DualBalancingAccumulativeCost","blah",200,"Myopic Bad Case: Comparing Accumulative Cost") + geom_line()
+MyopicBadAccumulativeCost <- plot_2_graph(myopic_bad_case$AccumulativeCostMY, "MyopicAccumulativeCost", myopic_bad_case$AccumulativeCostDB,"DualBalancingAccumulativeCost","blah",200,"Myopic Bad Case:\nComparing Accumulative Cost") + geom_line() +ylab("Accumulative Cost")
 #Myopic Bad: Ordering
-MyopicBadOrdering <- plot_2_graph(myopic_bad_case$OrderingMY, "MyopicOrdering", myopic_bad_case$OrderingDB,"DualBalancingOrdering","blah",200,"Myopic Bad Case: Comparing Ordering")+xlim(0,30) + geom_point()
+MyopicBadOrdering <- plot_2_graph(myopic_bad_case$OrderingMY, "MyopicOrdering", myopic_bad_case$OrderingDB,"DualBalancingOrdering","blah",200,"Myopic Bad Case: Comparing Ordering")+xlim(0,30) + geom_point() +ylab("Ordering")
 
 ggsave(MyopicBadDemand,file="figures/MyopicBadDemand.png", scale=.5)
 ggsave(MyopicBadNetInventory,file="figures/MyopicBadNetInventory.png", scale=.5)
