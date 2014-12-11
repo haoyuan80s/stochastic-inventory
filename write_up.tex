@@ -151,8 +151,8 @@ These algorithms are important in industries where the demand environment is hig
       \item $q_t$: ordering quantity at time $t$. (our control)
       \item $d_t$: demand quantity at time $t$. (we observe $d_t$ after decide $q_t$)
     \end{compactitem}
-    Our goal is to choose $q_t$ at time $t$ to minimize the expected total cost from period $t$ to $T$.\\
-    To do this we will minimize the equations below. Let $V_t$ be the minimum expected cost from period $t$ to $T$. Then
+    Our goal is to choose $q_t$ at time $t$ to minimize the expected total cost from period $t$ to $T$. To do this we will find out the minimizer (or approximate minimizer) of the quantities below.\\ 
+    Let $V_t$ be the minimum expected cost from period $t$ to $T$. Then
     \begin{align}
     V_T(x_T,d_{1..T-1}) &= \min_{q_T \geq 0} E[L_T(x_T,D_T,q_T) | d_{1..T-1}] \nonumber\\
     V_t(x_t,d_{1..t-1}) &= \min_{q_t \geq 0} E[L_t(x_t,D_t,q_t)\nonumber\\
@@ -164,9 +164,11 @@ These algorithms are important in industries where the demand environment is hig
         Dynamic Programming: solve for $q_t$ backwards using the formula above.
       \item
         Myopic: At time $t$, ignore $V_{t+1}$, we only minimize $E[L_t(x_t,D_t,q_t)|d_{1..t-1}]$.
+    \end{compactitem}
+    Remark:
+    \begin{compactitem}
       \item 
-        At period $s>t$, $D_s$ is a random variable that depends on perivous demands $d_1, d_2,...,d_{t+1},...,d_{s-1}$.\\
-        To compute the above conditional expectation, we need to work on $q_t,...,q_T$ which are are our future decision.
+        At period $s>t$, $D_s$ is a random variable that depends on perivous demands $d_1, d_2,...,d_{t+1},...,d_{s-1}$. To compute the above conditional expectation, we need to work on $q_t,...,q_T$ which are are our future decision. The non-stationary poperty of demands makes this approach intractable.
       \item
         The myopic approach works extremely well on many cases\cite{CLAcha1}, but may perform extremely poorly on other cases. (We will explain a poorly-performing example at the end of the talk.)
     \end{compactitem}
@@ -186,7 +188,7 @@ These algorithms are important in industries where the demand environment is hig
           \hat{p_t} &:= p_t - c_t + c_{t+1}\nonumber\\
           c_{T+1} &:= 0\nonumber
         \end{align}
-
+    Now, we introduce a new approach:\\
     \textbf{Dual-Balancing Algorithm}\cite{CLAcha2}
 
     Recall {\em Local Backlogging Cost}:
@@ -199,11 +201,18 @@ These algorithms are important in industries where the demand environment is hig
         Do transformation to make the ordering cost 0.
       \item
         Solve the convex optimization problem:
-        $$q_t^* = argmin_{q_t > 0} \max{E[H_t(x_t,q_t)| d_{1..t-1}], E[\Pi_t(x_t,q_t)| d_{1..t-1}]}$$
-        in order to find out $q_t^*$ such that
+        $$min_{q_t > 0}\\ \max{E[H_t(x_t,q_t)| d_{1..t-1}], E[\Pi_t(x_t,q_t)| d_{1..t-1}]}$$
+        in order to find out the minimizer $q_t^*$ such that
         $$E[H_t(x_t,q_t^*)| d_{1..t-1}] = E[\Pi_t(x_t,q_t^*)| d_{1..t-1}]$$
     \end{itemize}
-\lipsum[4] % Dummy text
+    Remark:
+    \begin{compactitem}
+      \item
+      Note that Dual-Balancing algorithm can be computed online, (i.e. We can compute $q_t$ without compute, $q_{t+1}, q_{t+2} ... $) and at a fixed time $t$ the distribution of future demands is stationary, which make the computation tractable. 
+      \item
+      It can be proven mathematically that, for Dual-Balancing algorithm, the worst case expected total future cost is at most two time as large as the optimal one.
+    \end{compactitem}
+% \lipsum[4] % Dummy text
 
 %------------------------------------------------
 
