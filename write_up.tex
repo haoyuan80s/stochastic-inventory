@@ -10,7 +10,7 @@
 % Frits Wenneker (http://www.howtotex.com)
 %
 % License:
-% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+% CC BY-NC-SA 2.5 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -22,6 +22,8 @@
 \usepackage{datetime}
 \usepackage{stackengine}
 \usepackage{mathtools}
+\usepackage{graphicx}
+
 \renewcommand\useanchorwidth{T}
 \usepackage{xcolor}
 \def\theyearwidth{1.5pt}
@@ -133,16 +135,19 @@ These algorithms are important in industries where the demand environment is hig
 %------------------------------------------------
 
 \section{The Model}
-    We consider finite time horizon $T$:
+    First, let's look at a simplied model with leading time $L=0$, i.e. the product arrive immediatelly after ordering. Then, we consider finite time horizon $T$:
     \par
       {\centering\yearwidth{1pt}\tclap{\tiny t}\showyear{1}\skipyears[black]{.25in}\showyear{2}\skipyears[black]{.25in}\showyear{3}\skipyears[black]{.25in}\showyear{4}\skipyears[black]{.25in}\showyear{5}\skipyears[black]{.25in}\showyear{6}\skipyears[black]{.25in}$\text{  }\cdots\text{  }$\showyear{$T-1$}\skipyears[black]{.25in}\showyear{$T$}
     \par}
     \vspace{0.1in}
-    At each time period $t = 1,\cdots,T$, the following cost are incurred:
-        \small
-        \[L_t(x_t,d_t,q_t):=c_tq_t+h_t(x_t + q_t - d_t)^{+}+p_t(x_t + q_t -d_t)_{t}^{-}\]
-        (Local Cost = Ordering Cost + Holding Cost + Backlogging Cost)
-    The parameters represent the following:
+    At each time period $t \in \{1,\cdots,T\}$, the following cost are incurred:
+    \begin{equation}\label{eq:Ldef}
+    \begin{array}{rl}
+        & L_t(x_t,d_t,q_t)\\
+        := & c_tq_t + h_t(x_t + q_t - d_t)^{+}+p_t(x_t + q_t -d_t)_{t}^{-}
+    \end{array}
+    \end{equation}
+        where 
     \begin{compactitem}
       \item $c_t$: per-unit ordering cost at time $t$.
       \item $h_t$: per-unit holding cost from $t$ to $t + 1$.
@@ -151,107 +156,156 @@ These algorithms are important in industries where the demand environment is hig
       \item $q_t$: ordering quantity at time $t$. (our control)
       \item $d_t$: demand quantity at time $t$. (we observe $d_t$ after decide $q_t$)
     \end{compactitem}
-    Our goal is to choose $q_t$ at time $t$ to minimize the expected total cost from period $t$ to $T$. To do this we will find out the minimizer (or approximate minimizer) of the quantities below.\\ 
-    Let $V_t$ be the minimum expected cost from period $t$ to $T$. Then
-    \begin{align}
-    V_T(x_T,d_{1..T-1}) &= \min_{q_T \geq 0} E[L_T(x_T,D_T,q_T) | d_{1..T-1}] \nonumber\\
-    V_t(x_t,d_{1..t-1}) &= \min_{q_t \geq 0} E[L_t(x_t,D_t,q_t)\nonumber\\
-    & +V_{t+1}(x_t + q_t - D_t, d_{1..t-1},D_t)|d_{1..t-1}]\nonumber
-    \end{align}
-    This gives us two natural ways to "solve" the problem:
+
+    In Eq. (\ref{eq:Ldef}), $x_t + q_t - d_t$ is the net inventory at the end of period $t$, if it is positive, we will suffer from a holding cost $h_t(x_t + q_t - d_t)^{+}$, otherwise there will be backlogging cost $p_t(x_t + q_t - d_t)^{-}$. Together with the ordering cost $c_tq_t$, we define $L_t(x_t,d_t,q_t)$ to be our Local Cost at time $t$, i.e. Local Cost = Ordering Cost + Holding Cost + Backlogging Cost.\\
+    Our goal is at each time $t$, choose $q_t$ to minimize the expected total cost from period $t$ to $T$. To do this we will find out the minimizer $q_t$ (or approximate minimizer) of the quantities below:
+    \begin{equation}\label{eq:Vt}
+    \begin{array}{rl}
+    & V_T(x_T,d_{1..T-1}) \\
+    = & \min_{q_T \geq 0} E[L_T(x_T,D_T,q_T) | d_{1..T-1}]\\
+    &V_t(x_t,d_{1..t-1}) \\
+    = & \min_{q_t \geq 0} E[L_t(x_t,D_t,q_t)\\
+    & +V_{t+1}(x_t + q_t - D_t, d_{1..t-1},D_t)|d_{1..t-1}]
+    \end{array}
+    \end{equation}
+    where $V_t$ is the minimum expected cost from period $t$ to $T$, $d_{t_1..t_2}$ is the demand vector from $t_1$ to $t_2$. Since at time $t$, the future demand are some random variables depending on previous demand, we use $D_t$ to denote those unknow demand. Then, this gives us two natural ways to "solve" the problem:
     \begin{compactitem}
       \item 
         Dynamic Programming: solve for $q_t$ backwards using the formula above.
       \item
         Myopic: At time $t$, ignore $V_{t+1}$, we only minimize $E[L_t(x_t,D_t,q_t)|d_{1..t-1}]$.
     \end{compactitem}
-    Remark:
-    \begin{compactitem}
-      \item 
-        At period $s>t$, $D_s$ is a random variable that depends on perivous demands $d_1, d_2,...,d_{t+1},...,d_{s-1}$. To compute the above conditional expectation, we need to work on $q_t,...,q_T$ which are are our future decision. The non-stationary poperty of demands makes this approach intractable.
-      \item
-        The myopic approach works extremely well on many cases\cite{CLAcha1}, but may perform extremely poorly on other cases. (We will explain a poorly-performing example at the end of the talk.)
-    \end{compactitem}
-    In fact we also need to consider leading time $L \neq 0$ (i.e. it takes $L$ periods to receive our order.) Then we need to modify:
-        \begin{align}
-          x_t & := Net~Inventory + Undelived~orders\nonumber\\
-              & := Net~Inventory + \sum_{j = t - L+1}^{t-1} q_j\nonumber\\
-          L_t(x_t,d_{t..t+L},q_t)& :=c_tq_t + h_{t+L}(x_t + q_t - \sum d_{t..t+L})^{+} \nonumber\\
-                                &  + p_{t+L}(x_t + q_T - \sum d_{t..t+L})^{-}\nonumber
-        \end{align}
-        \[ \sum d_{t..t+L} := d_t + ... + d_{t+L}\]\\
-        %***$Undelived~orders := \sum_{j = t - L+1}^{t-1} q_j$
-    We can assume $c_t = 0$ by doing the transformation:
-        \begin{align}
+     However, using dynamic programming, at period $s>t$, $D_s$ is a random variable that depends on perivous demands $d_1, d_2,...,d_{t+1},...,d_{s-1}$ which lead to computational difficulties. We also need to work on $q_t,...,q_T$ which are our unknown future decision. The non-stationary poperty of demands makes dynamic programming approach intractable. On the other side, although the myopic approach works extremely well on many cases\cite{CLAcha1}, it may perform extremely poorly on other cases, which will be shown at the end of the paper.\\
+
+    In fact we also need to consider leading time $L \neq 0$, i.e. it takes $L$ periods to receive our order. Then we need define $x_t={\rm Net~Inventory}  + \sum_{j = t - L+1}^{t-1} q_j$ to be our inventory position, where $\sum_{j = t - L+1}^{t-1} q_j$ is our undelivered orders. We also need to modify our Local Cost to be 
+        \begin{equation}\label{eq:Lneq0}
+        \begin{array}{rl}
+              & L_t(x_t,d_{t..t+L},q_t)\\
+          := &c_tq_t + h_{t+L}(x_t + q_t - d_{[t,t+L]})^{+}\\
+                                &  + p_{t+L}(x_t + q_T - d_{[t,t+L]})^{-}
+        \end{array}
+        \end{equation}
+        where $d_{[t,t+L]}=\sum_{s=t}^{t+L} d_s$.\\
+        In the simulation, we can always assume $c_t = 0$ by doing the transformation:
+        
+        \begin{equation}\label{eq:hats}
+        \begin{array}{rl}
           \hat{c_t} &:= 0;\nonumber\\
           \hat{h_t} &:= h_t + c_t - c_{t+1}\nonumber\\
           \hat{p_t} &:= p_t - c_t + c_{t+1}\nonumber\\
           c_{T+1} &:= 0\nonumber
-        \end{align}
-    Now, we introduce a new approach:\\
-    \textbf{Dual-Balancing Algorithm}\cite{CLAcha2}
+        \end{array}
+        \end{equation}
 
-    Recall {\em Local Backlogging Cost}:
-    $$\Pi_t(x_t,q_t) := p_{t+L}(x_t + q_T - \sum D_{t..t+L})^{-}$$
-    Now, we define {\em Marginal Holding Cost}:
-    $$H_t(x_t,q_t) := \sum_{j = t+L}^{T} h_j (q_t - (\sum D_{t..j} - x_t)^+)^+$$.
-    Dual-Balancing Algorithm:
-    \begin{itemize}
-      \item 
-        Do transformation to make the ordering cost 0.
-      \item
-        Solve the convex optimization problem:
-        $$min_{q_t > 0}\\ \max{E[H_t(x_t,q_t)| d_{1..t-1}], E[\Pi_t(x_t,q_t)| d_{1..t-1}]}$$
-        in order to find out the minimizer $q_t^*$ such that
-        $$E[H_t(x_t,q_t^*)| d_{1..t-1}] = E[\Pi_t(x_t,q_t^*)| d_{1..t-1}]$$
-    \end{itemize}
-    Remark:
-    \begin{compactitem}
-      \item
-      Note that Dual-Balancing algorithm can be computed online, (i.e. We can compute $q_t$ without compute, $q_{t+1}, q_{t+2} ... $) and at a fixed time $t$ the distribution of future demands is stationary, which make the computation tractable. 
-      \item
-      It can be proven mathematically that, for Dual-Balancing algorithm, the worst case expected total future cost is at most two time as large as the optimal one.
-    \end{compactitem}
+\section{Dual Balancing Algorithm}    
+    In 2007, Retsef Levi, Martin Pal, Robin Roundy and David Shmoys introduced a new approach\cite{CLAcha2} for the inventory control problem named Dual Balancing. Recall Local Backlogging Cost:
+    \begin{equation}\label{eq:Bcost}
+    \Pi_t(x_t,q_t) = p_{t+L}(x_t + q_T - D_{[t,t+L]})^{-}
+    \end{equation}
+    Now, we define Marginal Holding Cost:
+    \begin{equation}\label{eq:MHcost}
+    H_t(x_t,q_t) := \sum_{j = t+L}^{T} h_j (q_t - (D_{[t,j]} - x_t)^+)^+.
+    \end{equation}
+    Now, the Dual Balancing Algorithm as follows:\\
+    (i) Transform using Eq. (\ref{eq:hats});\\
+    (ii) Start at $t=1$;\\
+    (iii) Solve the convex optimization problem:
+    \begin{equation}\label{eq:ConvexOP}
+        \min_{q_t > 0}\\ \max{E[H_t(x_t,q_t)| d_{1..t-1}], E[\Pi_t(x_t,q_t)| d_{1..t-1}]};
+        \end{equation}
+    (iv) Observe $d_t$, update $x_t,d_{1..t}$ and set $t=t+1$;
+    (v) If $t<T$, go to step (iii).\\
+
+    In fact, the above algorithm is called Dual Balancing since the minimizer $q_t$ in Eq. (\ref{eq:ConvexOP})will satisfy
+    \begin{equation}\label{eq:DB}
+        E[H_t(x_t,q_t)| d_{1..t-1}] = E[\Pi_t(x_t,q_t)| d_{1..t-1}]
+        \end{equation}
+      Since both $H_t,\Pi_t$ don't depend on $q_s$ for $s>t$, the Dual-Balancing algorithm can be computed online, i.e. we can compute $q_t$ without compute $q_{t+1}, q_{t+2} ... $. It was proven that, the expected total cost in Dual-Balancing algorithm,  is at most two times the optimal one\cite{CLAcha2}.
 % \lipsum[4] % Dummy text
 
 %------------------------------------------------
 
 \section{Implementation}
+
+%\begin{figure}[htb]
+%\centering
+%\includegraphics[scale=0.5,bb=0 0 385 567]{software_diagram.png}
+%\caption{GENERALIZED}
+%\label{fig:implementation}
+%\end{figure}
+
 \begin{center}
   \includegraphics[width=3.0in]{software_diagram.png}
 \end{center}
+Our project aim is to implement the Dual Balancing Algorithm and test its performance for some major common demand distributions in this area. As in Fig. (?????), we divide our coding into several major part. The Parameter Data class save all the parameters for the problem, while its child class Policy contains all the informations for the algorithm, including, demand distribution type, distribution parameter, demand, ordering and cost for all time periods, and so on. The class Sample is in charge of organizing all functions, classes and collecting datas.\\
+Once the program start, we are read data from file and contruct a Sample class for each data set, the Sample class will construct a Policy class and updating the Policy class as the algorithm is called. We provide both Dual Balancing and Myopic for comparison. The main challenge of the project is to compute those conditional expectation in Eq. (\ref{eq:Bcost})(\ref{eq:MHcost})(\ref{eq:DB})) using the function ConditionalExp for some given distribution. After we get the conditional expectations, we can solve the minimization problem at current time $t$, then we recieve a random demand from RandomDemand and move on. After all the computation is finished, the Sample class will collect the datas and provide the output.
+
+
+
+\section{Results}
 
 In following simulations:
-    \begin{itemize}
+\begin{compactitem}
       \item We always let $c_t = 3, h_t = 1, p_t = 2$.
       \item Without specific mention, time horizon $T = 100, L = 5, x_0 = 0$.
-      \item The sample size is 20, if we do averages.
+      \item The sample size is 20, and we do averages.
       \item We considered four different demands (i.e. $D_t$) distribution:\\
             1. $D_t = N(50,5)$ are iid.\\
             2. $D_t-D_{t-1} = N(5,1.581)$ with $D_0=30$.\\
             3. $D_t-D_{t-1} = B(10,0.5)$ with $D_0=30$.\\
             4. $D_t- (D_{t-1} + D_{t-2} + D_{t-3})/3 = N(5,1.581)$ with $D_0=30$.
-    \end{itemize}
+\end{compactitem}
+\subsection{Single sample path behavior}
+  \includegraphics[width=2.5in]{figures/DualBalancingParameters.png}
 
-\section{Results}
-  \includegraphics[width=3.0in]{figures/DualBalancingParameters.png}
-  \includegraphics[width=3.0in]{figures/LeadTime.png}
-  \includegraphics[width=3.0in]{figures/NetInventory.png}
-  \includegraphics[width=3.0in]{figures/TotalCostToOrderRatio.png}
-  \includegraphics[width=3.0in]{figures/AccumulativeDemandAndCost_Normal.png}
-  \includegraphics[width=3.0in]{figures/AccumulativeDemandAndCost_Binomial.png}
-  \includegraphics[width=3.0in]{figures/AccumulativeDemandAndCost_Brownian.png}
-  \includegraphics[width=3.0in]{figures/AccumulativeDemandAndCost_Markov.png}
-  \includegraphics[width=3.0in]{figures/key.png}
-  \includegraphics[width=3.0in]{figures/DemandAndNetInventory_Normal.png}
-  \includegraphics[width=3.0in]{figures/DemandAndNetInventory_Binomial.png}
-  \includegraphics[width=3.0in]{figures/DemandAndNetInventory_Brownian.png}
-  \includegraphics[width=3.0in]{figures/DemandAndNetInventory_Markov.png}
-  \includegraphics[width=3.05in]{figures/key2.png}
-  \includegraphics[width=3.0in]{figures/MyopicBadDemand.png}
-  \includegraphics[width=3.0in]{figures/MyopicBadNetInventory.png}
-  \includegraphics[width=3.0in]{figures/MyopicBadOrdering.png}
-  \includegraphics[width=3.0in]{figures/MyopicBadAccumulativeCost.png}
+We pick $T=20,L=2,D_t=N(20,2,24)$ i.i.d. and compute using Dual Balancing. In the Fig. (???), we only show the result of one sample path. As you can see in Fig. (???), since the initial net inventory is 0 and $L=2$, the demand is going to accumulate and induce a nonzero holding cost. However, due to a large amount of ordering, the cost reduced a lot when the first ordering arrived at $t=L=2$. After that, the ordering stabilized and oscillate according to the change of $d_t$. The net inventory\footnote{Net inventory is computed by averaging absolute value of net inventory in each sample. Small net inventory indicates good police.} is also stabilize and oscillate around 0, this means the holding cost and backlogging cost are close to zero. Most of the cost are due to ordering and the cost curve is almost proportional to demand one.\\
+Since, the demand include randomness, we will never be able to control our net inventory exactly at zero. Thus, Fig. (???) actually imply that the solution of Dual Balancing could be very close to the optimal solution.
+\subsection{Average Behavior}
+
+\subsubsection{Stabilize Speed}
+
+  \includegraphics[width=1.5in]{figures/LeadTime.png}
+  \includegraphics[width=1.5in]{figures/NetInventory.png}
+
+For Fig(???), we fix $T=30, D_t=??$ and using Dual Balancing algorithm. In the left figure, we choose initial inventory $x_0 = 0$ and plot net inventory for different leading times. It is clear that larger leading time leads to a higher volume of net inventory. However, no matter how larger our leading that is, at period $L+1$, i.e. the time we receive our period 1 order, the net inventory drop down a low level immediately.\\
+In the right figure, a fix $L = 5$ and change initial net inventory. If initial net inventory $x > 0$, it will support demands for some periods, and after consuming all initial net inventory, the absolute net inventory climbs up until period $L+1$, then we have a stable net inventory closed to 0.\\
+
+\subsubsection{Long Term Cost/Demand Ratio}
+
+  \includegraphics[width=2.5in]{figures/TotalCostToOrderRatio.png}
+
+\subsection{Comparison to Myopic}
+\subsubsection{General Performance}
+
+  \includegraphics[width=1.5in]{figures/AccumulativeDemandAndCost_Normal.png}
+  \includegraphics[width=1.5in]{figures/AccumulativeDemandAndCost_Binomial.png}
+  \includegraphics[width=1.5in]{figures/AccumulativeDemandAndCost_Brownian.png}
+  \includegraphics[width=1.5in]{figures/AccumulativeDemandAndCost_Markov.png}
+  \includegraphics[width=2.5in]{figures/key.png}
+
+In figure(???), we notice that for all four kinds for demand distributions, the accumulative demands for both algorithm overlap on the green line and accumulative costs overlap on the purple line. This indicates that for all four kinds for demand distributions, under same demands distribution, the performance, measured by accumulative cost, of Dual Balancing algorithm and Myopic algorithm are almost exactly the same.\\
+In 2006 Zipkin's paper\cite{CLAcha1}, he shows that, in many cases, myopic algorithm works extremely well. Thus, fig(???) indicates a good behavior of Dual Balancing algorithm.
+
+  \includegraphics[width=1.5in]{figures/DemandAndNetInventory_Binomial.png}
+  \includegraphics[width=1.5in]{figures/DemandAndNetInventory_Normal.png}
+  \includegraphics[width=1.5in]{figures/DemandAndNetInventory_Brownian.png}
+  \includegraphics[width=1.5in]{figures/DemandAndNetInventory_Markov.png}
+  \includegraphics[width=2.5in]{figures/key2.png}
+
+(as above, only need one)
+
+
+ \subsubsection{Bad Example for Myopic} 
+  \includegraphics[width=1.5in]{figures/MyopicBadDemand.png}
+  \includegraphics[width=1.5in]{figures/MyopicBadNetInventory.png}
+  We consider the a periodic demand distribution: if $t\in \{0,20,40,60,...\}$, $D_t=N(20,?)$, otherwise, $D_t=0$.//
+  In fig (???), we simulates two of this periodic demand distribution.\\
+  In fig (???), we can see that at critical periods (i.e. $t\in \{0,20,40,60,...\}$), net inventory have a sudden jump for for both algorithms, but after the jump the net inventory produced by applying Dual Balancing algorithm drops down to a much low level than that produced by Myopic police.
+  \includegraphics[width=2.5in]{figures/MyopicBadOrdering.png}
+  Fig(???) shows why Dual Balancing algorithm has a batter performance. Compared with Myopic algorithm, Dual Balancing algorithm is more conservative. Dual Balancing algorithm always orders less than Myopic algorithm on each critical period, which gives a higher expected cost on this critical period, but Dual Balancing algorithm has less leftover after critical period. One the long run, this give a Dual Balancing algorithm a lower average net inventory.
+
+  \includegraphics[width=2.5in]{figures/MyopicBadAccumulativeCost.png}
+  Fig(???) shows that Dual Balancing algorithm has a much less accumulative cost.
 %------------------------------------------------
 
 \section{Conclusion}

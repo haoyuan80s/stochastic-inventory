@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1418315227 "write_up.tex" "write_up.pdf" "write_up" 1418315231
+["pdflatex"] 1418435131 "write_up.tex" "write_up.pdf" "write_up" 1418435418
   "/usr/local/texlive/2014/texmf-dist/tex/context/base/supp-pdf.mkii" 1337017135 71627 94eb9990bed73c364d7f53f960cc8c5b ""
   "/usr/local/texlive/2014/texmf-dist/tex/generic/ifxetex/ifxetex.sty" 1284331290 1458 43ab4710dc82f3edeabecd0d099626b2 ""
   "/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/gettitlestring.sty" 1303254447 8237 52810bdb4db2270e717422560a104aea ""
@@ -81,8 +81,6 @@
   "figures/AccumulativeDemandAndCost_Brownian.png" 1418249475 114179 63142ff1dc1e6ce46982c4f0f7c4c278 ""
   "figures/AccumulativeDemandAndCost_Markov.png" 1418249475 107842 0153ba90689474adbd139b96252038c5 ""
   "figures/AccumulativeDemandAndCost_Normal.png" 1418249475 100974 9ca7de384d767259a9da2467bf10e9f3 ""
-  "figures/DemandAndNetInventory_Binomial.png" 1418249475 109398 1a0633ec6986ce59e4469353d4847024 ""
-  "figures/DemandAndNetInventory_Brownian.png" 1418249475 112294 59484dc2152c86c220152b796fa1ae79 ""
   "figures/DemandAndNetInventory_Markov.png" 1418249475 109874 ae7c757cd0f59acb358ee69c34437b1d ""
   "figures/DemandAndNetInventory_Normal.png" 1418249475 91965 18d06ad64f3e329bdab4c659f1332ab8 ""
   "figures/DualBalancingParameters.png" 1418249475 109910 7b67a9ff2d989f3245d7c918297b224c ""
@@ -96,11 +94,11 @@
   "figures/key.png" 1418249475 23853 0824a6f29f6eb477697faafd76810931 ""
   "figures/key2.png" 1418249475 22604 20b40b38e8702b15b1da2e335f344568 ""
   "software_diagram.png" 1418249475 27460 59602355f48646b171f61aa5a05d51bc ""
-  "write_up.aux" 1418315231 1163 a93fb2ac81961b83ea7b43bafeba14f3 ""
-  "write_up.out" 1418315231 227 9ca73646388a8a135250b94d6d6f0678 ""
-  "write_up.tex" 1418315226 14125 a62492d173149c12ed28d2438e31e619 ""
+  "write_up.aux" 1418435136 2557 de8a17b8d2d08082f309c9fc425acde9 ""
+  "write_up.out" 1418435136 819 cf9f98e4ccc06a0d6d39186050a2c80b ""
+  "write_up.tex" 1418435417 20487 0800c34ee0cc8744aa7584636d273495 ""
   (generated)
-  "write_up.out"
-  "write_up.pdf"
   "write_up.log"
+  "write_up.out"
   "write_up.aux"
+  "write_up.pdf"
