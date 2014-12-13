@@ -119,18 +119,18 @@ Blake Miller
 
 \section{Introduction}
 
-\lettrine[nindent=0em,lines=2]{P}roper inventory management, stocking, and purchasing policy are paramount to supply, distribution, and retail businesses. The challenges of minimizing costs in an environment dependent upon many stochastic processes presents businesses with a unique challenge. This problem is important for any company that seeks to minimize cost of holding excess inventory while minimizing backorder costs (unmet demand). Especially in industries where the demand environment is highly dynamic. (i.e. Apple's supply-chain for solid state drives, seasonal products such as rock salt). \\
-The inventory control problem is very difficult because oftentimes demand are unpredictable and cost is hard to predict due to the nature of demand. It is even very difficult to develop an approximation algorithm that is appropriate to the risk profile of companies operating under dynamic demand environments. This is because these companies must determine whether the provable error margin of an approximation algorithm is appropriate for their own risk profile. In this paper, we will investigate the performance a new algorithm\cite{CLAcha2} for the inventory control problem using C++ implementation.\\
+\lettrine[nindent=0em,lines=2]{P}roper inventory, stocking, and purchasing policy are paramount to the success of supply, distribution, and retail businesses. The challenges of minimizing costs in an environment that is dependent upon many stochastic processes presents businesses with a unique challenge: ordering the right amount of material at the right time. This problem is important for any company that seeks to minimize cost of holding excess inventory while minimizing backorder costs (unmet demand). Especially in industries where the demand environment is highly dynamic. (i.e. Apple's supply-chain for solid state drives, seasonal products such as rock salt). \\
+The inventory control problem is very difficult because oftentimes demand is unpredictable and cost is hard to predict due to the stochastic nature of demand. It is particularly difficult to develop an approximation algorithm that is appropriate to the risk profile of companies operating under dynamic demand environments. This is due to the business need of determining the provable error margin of an approximation algorithm, which must be appropriate for a company's risk profile. In this paper, we will investigate the performance of a new algorithm\cite{CLAcha2} for the inventory control problem using C++ for implementation and R for data visualization.\\
 
 %------------------------------------------------
 
 \section{The Model}
-    First, let's look at a simplied model with leading time $L=0$, i.e. the product arrive immediatelly after ordering. Then, we consider finite time horizon $T$:
+    First, let's look at a simplified model with a leading time of $L=0$. This means the product will arrive immediately upon order placement. We then consider a finite time horizon $T$:
     \par
       {\centering\yearwidth{1pt}\tclap{\tiny t}\showyear{1}\skipyears[black]{.25in}\showyear{2}\skipyears[black]{.25in}\showyear{3}\skipyears[black]{.25in}\showyear{4}\skipyears[black]{.25in}\showyear{5}\skipyears[black]{.25in}\showyear{6}\skipyears[black]{.25in}$\text{  }\cdots\text{  }$\showyear{$T-1$}\skipyears[black]{.25in}\showyear{$T$}
     \par}
     \vspace{0.1in}
-    At each time period $t \in \{1,\cdots,T\}$, the following cost are incurred:
+    At each time period $t \in \{1,\cdots,T\}$, the following costs are incurred:
     \begin{equation}\label{eq:Ldef}
     \begin{array}{rl}
         & L_t(x_t,d_t,q_t)\\
@@ -147,8 +147,8 @@ The inventory control problem is very difficult because oftentimes demand are un
       \item $d_t$: demand quantity (we observe $d_t$ after decide $q_t$).
     \end{compactitem}
 
-    In Eq. (\ref{eq:Ldef}), $x_t + q_t - d_t$ is the net inventory at the end of period $t$, if it is positive, we will suffer from a holding cost $h_t(x_t + q_t - d_t)^{+}$, otherwise there will be backlogging cost $p_t(x_t + q_t - d_t)^{-}$. Together with the ordering cost $c_tq_t$, we define $L_t(x_t,d_t,q_t)$ to be our Local Cost at time $t$, i.e. Local Cost = Ordering Cost + Holding Cost + Backlogging Cost.\\
-    Our goal is at each time $t$, choose $q_t$ to minimize the expected total cost from period $t$ to $T$. To do this we will find out the minimizer $q_t$ (or approximate minimizer) of the quantities below:
+    In Eq. (\ref{eq:Ldef}), $x_t + q_t - d_t$ is the net inventory at the end of period $t$. If it is positive, we will incur a holding cost $h_t(x_t + q_t - d_t)^{+}$, otherwise there will be backlogging cost $p_t(x_t + q_t - d_t)^{-}$. Together with the ordering cost $c_tq_t$, we define $L_t(x_t,d_t,q_t)$ to be our local cost at time $t$, i.e. Local Cost = Ordering Cost + Holding Cost + Backlogging Cost.\\
+    At each time $t$, our goal is to choose $q_t$ to minimize the expected total cost from period $t$ to $T$. To do this we will find out the minimizer $q_t$ (or approximate minimizer) of the quantities below:
     \begin{equation}\label{eq:Vt}
     \begin{array}{rl}
     & V_T(x_T,d_{1..T-1}) \\
@@ -158,14 +158,14 @@ The inventory control problem is very difficult because oftentimes demand are un
     & +V_{t+1}(x_t + q_t - D_t, d_{1..t-1},D_t)|d_{1..t-1}]
     \end{array}
     \end{equation}
-    where $V_t$ is the minimum expected cost from period $t$ to $T$, $d_{t_1..t_2}$ is the demand vector from $t_1$ to $t_2$. Since at time $t$, the future demand are some random variables depending on previous demand, we use $D_t$ to denote those unknow demand. Then, this gives us two natural ways to "solve" the problem:
+    where $V_t$ is the minimum expected cost from period $t$ to $T$, $d_{t_1..t_2}$ is the demand vector from $t_1$ to $t_2$. Since at time $t$, the future demand depends on previous demand (each future demand is a random variable), we use $D_t$ to denote unknown demand. Then, this gives us two natural ways to "solve" the problem:
     \begin{compactitem}
       \item
-        Dynamic Programming: solve for $q_t$ backwards using the formula above.
+        Dynamic Programming: solve for $q_t$ backward recursively using the formula above.
       \item
         Myopic: At time $t$, ignore $V_{t+1}$, we only minimize $E[L_t(x_t,D_t,q_t)|d_{1..t-1}]$.
     \end{compactitem}
-     However, using dynamic programming, at period $s>t$, $D_s$ is a random variable that depends on perivous demands $d_1, d_2,...,d_{t+1},...,d_{s-1}$ which lead to computational difficulties. We also need to work on $q_t,...,q_T$ which are our unknown future decision. The non-stationary poperty of demands makes dynamic programming approach intractable. On the other side, although the myopic approach works extremely well on many cases\cite{CLAcha1}, it may perform extremely poorly on other cases, which will be shown at the end of the paper.\\
+     However, using dynamic programming leads to computational difficulties, as period $s>t$, $D_s$ is a random variable that depends on previous demand $d_1, d_2,...,d_{t+1},...,d_{s-1}$. We also need to work on $q_t,...,q_T$ which are our unknown future decisions. The non-stationary property of demand makes dynamic programming approach intractable. On the other side, although the myopic approach works extremely well in many cases\cite{CLAcha1}, it may perform extremely poorly on other cases, which will be shown at the end of the paper.\\
 
     In fact we also need to consider leading time $L \neq 0$, i.e. it takes $L$ periods to receive our order. Then we need define $x_t={\rm Net~Inventory}  + \sum_{j = t - L+1}^{t-1} q_j$ to be our inventory position, where $\sum_{j = t - L+1}^{t-1} q_j$ is our undelivered orders. We also need to modify our Local Cost to be 
         \begin{equation}\label{eq:Lneq0}
@@ -224,8 +224,8 @@ The inventory control problem is very difficult because oftentimes demand are un
 %\end{figure}
 
 \begin{center}
-  \label{figure:software_diagram}
   \captionof{figure}{Software Design Diagram}
+  \label{figure:software_diagram}
   \includegraphics[width=3.0in]{software_diagram.png}
 \end{center}
 Our aim is to implement Dual Balancing Algorithm and test its performance for some common demand distributions. We divide coding into several major parts. The Parameter Data class save parameters for the problem, while its child class Policy contains all the informations for the algorithm, including, demand distribution type, distribution parameter, demand, ordering and cost for all time periods, and so on. Class Sample is in charge of organizing all functions, classes and collecting data.\\
@@ -250,8 +250,8 @@ In simulations, we have following default setting without special mentioning:
   \textbf{Single Sample Path Behavior}
 \end{center}
 \begin{center}
-  \label{figure:DualBalancingParameters}
   \captionof{figure}{Dual Balancing Parameters}
+  \label{figure:DualBalancingParameters}
   \includegraphics[width=2.5in]{figures/DualBalancingParameters.png}
 \end{center}
 
@@ -262,8 +262,8 @@ Since, the demand include randomness, we will never be able to control our net i
 \end{center}
 
 \begin{center}
-  \label{figure:NetInventoryLeadTime}
   \captionof{figure}{\small Stabilization Across Different Initial Values of Net Inventory and Lead Time}
+  \label{figure:NetInventoryLeadTime}
   \includegraphics[width=2.8in]{figures/NetInventoryLeadTime.png}
 \end{center}
 
@@ -274,8 +274,8 @@ In the right figure, a fix $L = 5$ and change initial net inventory. If initial 
   \textbf{Long Term Cost/Demand Ratio}
 \end{center}
 \begin{center}
-  \label{figure:TotalCostToOrderRatio}
   \captionof{figure}{Total Cost to Order Ratio: Independent Normal vs. Incrementing Normal Distribution}
+  \label{figure:TotalCostToOrderRatio}
   \includegraphics[width=2.8in]{figures/TotalCostToOrderRatio.png}
 \end{center}
 Another thing we interested in is whether Dual Balancing still perform very well as $T$ getting large. In Fig. \ref{figure:TotalCostToOrderRatio}, both curves plotted total cost over total demand for different distributions. We can see that, in the long run, the cost per demand converge to a center number and will not blow up. This imply in long run, the algorithm produced nice stability. Moreover, since our $c_t=3$, this ratio is at least 3, and you may see for normal increment, the ratio converge to exactly 3, so the Dual Balancing is almost optimal. 
@@ -299,21 +299,21 @@ In Fig. \ref{figure:AccumulativeDemandAndCost}, we compare the averaged sample p
     \textbf{Bad Example for Myopic}
   \end{center}
   \begin{center}
-    \label{figure:MyopicBad}
     \captionof{figure}{\scriptsize Myopic vs. Dual-Balancing}
+    \label{figure:MyopicBad}
     \includegraphics[width=2.8in]{figures/MyopicBad.png}
   \end{center}
   In all following figures, we averaged the sample paths. As shown in Fig. \ref{figure:MyopicBad}, We consider the a periodic demand distribution: if $t\in \{0,20,40,60,...\}$, $D_t=N(20,3.16)$, otherwise, $D_t=0$.  In Fig. \ref{figure:MyopicBad}, we can see that at critical periods (i.e. $t\in \{0,20,40,60,...\}$), net inventory have a sudden jump for for both algorithms, but after the jump the net inventory produced by applying Dual Balancing drops down to a much low level than Myopic.
   \begin{center}
-    \label{figure:MyopicBadOrderingWriteup}
     \captionof{figure}{\scriptsize Myopic vs. Dual-Balancing: Ordering}
+    \label{figure:MyopicBadOrderingWriteup}
     \includegraphics[width=2.5in]{figures/MyopicBadOrderingWriteup.png}
   \end{center}
   Fig \ref{figure:MyopicBadOrderingWriteup} explains why Dual Balancing algorithm has this better performance. Comparing to Myopic, Dual Balancing algorithm always orders less than Myopic algorithm on each critical period, which gives a slightly higher expected backlogging cost on this critical period, but it successfully avoided possible holding cost during all the periods before next demand arrived 20 days later as we see in Fig. \ref{figure:MyopicBadOrderingWriteup}. Then in next period, dual balancing ordered a little bit to eliminate the backlogging cost. Then in following 18 periods, its cost is almost 0.
 
   \begin{center}
-    \label{figure:MyopicBadAccumulativeCostWriteup}
     \captionof{figure}{\scriptsize Myopic vs. Dual-Balancing: Accumulative Cost}
+    \label{figure:MyopicBadAccumulativeCostWriteup}
     \includegraphics[width=2.5in]{figures/MyopicBadAccumulativeCostWriteup.png}
   \end{center}
   As a result of the nice strategy, Fig. \ref{figure:MyopicBadAccumulativeCostWriteup} tells us that in this case, the Myopic is about 5 times the total cost of Dual Balancing in the long run. In fact, it could be prove that the Myopic could be $K$ times the optimal cost where $K$ is the period of demand.
