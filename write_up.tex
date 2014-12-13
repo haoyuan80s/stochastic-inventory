@@ -165,7 +165,7 @@ The inventory control problem is very difficult because oftentimes demand is unp
       \item
         Myopic: At time $t$, ignore $V_{t+1}$, we only minimize $E[L_t(x_t,D_t,q_t)|d_{1..t-1}]$.
     \end{compactitem}
-     However, using dynamic programming leads to computational difficulties, as period $s>t$, $D_s$ is a random variable that depends on previous demand $d_1, d_2,...,d_{t+1},...,d_{s-1}$. We also need to work on $q_t,...,q_T$ which are our unknown future decisions. The non-stationary property of demand makes dynamic programming approach intractable. On the other side, although the myopic approach works extremely well in many cases\cite{CLAcha1}, it may perform extremely poorly on other cases, which will be shown at the end of the paper.\\
+     However, using dynamic programming leads to computational difficulties, as period $s>t$, $D_s$ is a random variable that depends on previous demand $d_1, d_2,...,d_{t+1},...,d_{s-1}$. We also need to work on $q_t,...,q_T$ which are our unknown future decisions. These above problems make the dynamic programming approach intractable. On the other side, although the myopic approach works extremely well in many cases\cite{CLAcha1}, it may perform extremely poorly on other cases, which will be shown at the end of the paper.\\
 
     In fact we also need to consider leading time $L \neq 0$, i.e. it takes $L$ periods to receive our order. Then we need define $x_t={\rm Net~Inventory}  + \sum_{j = t - L+1}^{t-1} q_j$ to be our inventory position, where $\sum_{j = t - L+1}^{t-1} q_j$ is our undelivered orders. We also need to modify our Local Cost to be 
         \begin{equation}\label{eq:Lneq0}
@@ -176,18 +176,16 @@ The inventory control problem is very difficult because oftentimes demand is unp
         \end{array}
         \end{equation}
         where $d_{[t,t+L]}=\sum_{s=t}^{t+L} d_s$.\\
-        In the simulation, we can always assume $c_t = 0$ by doing the transformation:
+        In the simulation, we can always assume $c_t = 0$ by doing the transformation ($c_{T+1}:=0$):
         \begin{equation}\label{eq:hats}
         \begin{array}{rl}
-          \hat{c_t} &:= 0;\nonumber\\
-          \hat{h_t} &:= h_t + c_t - c_{t+1}\nonumber\\
-          \hat{p_t} &:= p_t - c_t + c_{t+1}\nonumber\\
-          c_{T+1} &:= 0\nonumber
+          \hat{h_t} &:= h_t + c_t - c_{t+1}\\
+          \hat{p_t} &:= p_t - c_t + c_{t+1}\\
         \end{array}
         \end{equation}
 
 \section{Dual Balancing Algorithm}    
-    In 2007, Retsef Levi, Martin Pal, Robin Roundy and David Shmoys introduced a new approach\cite{CLAcha2} for the inventory control problem named Dual Balancing. Recall Local Backlogging Cost:
+    In 2007, R. Levi, M. Pal, R. Roundy and D. Shmoys introduced a new approach\cite{CLAcha2} for the inventory control problem named Dual Balancing. Recall Local Backlogging Cost:
     \begin{equation}\label{eq:Bcost}
     \Pi_t(x_t,q_t) = p_{t+L}(x_t + q_T - D_{[t,t+L]})^{-}
     \end{equation}
@@ -237,8 +235,7 @@ Once read data from input file, the program contruct a Sample class for each dat
 
 In simulations, we have following default setting without special mentioning:
 \begin{compactitem}
-      \item $c_t = 3, h_t = 1, p_t = 2$.
-      \item $T = 100, L = 5, x_0 = 0$.
+      \item $c_t = 3, h_t = 1, p_t = 2, L=5, x_0=0$.
       \item The sample size are 20.
       \item We considered four different demands (i.e. $D_t$) distribution:\\
             1. $D_t = N(50,5)$ are iid.\\
@@ -267,8 +264,7 @@ Since, the demand include randomness, we will never be able to control our net i
   \includegraphics[width=2.8in]{figures/NetInventoryLeadTime.png}
 \end{center}
 
-For Fig. \ref{figure:NetInventoryLeadTime}, we fix $T=30, D_t=??$ and using Dual Balancing algorithm. In the left figure, we choose initial inventory $x_0 = 0$ and plot net inventory for different leading times. It is clear that larger leading time leads to a higher volume of net inventory. However, no matter how larger our leading that is, at period $L+1$, i.e. the time we receive our period 1 order, the net inventory drop down a low level immediately.\\
-In the right figure, a fix $L = 5$ and change initial net inventory. If initial net inventory $x > 0$, it will support demands for some periods, and after consuming all initial net inventory, the absolute net inventory climbs up until period $L+1$, then we have a stable net inventory closed to 0.\\
+In Fig. \ref{figure:NetInventoryLeadTime}, we fix $T=30,D_t-D_{t-1} = N(5,1.581)$ with $D_0=20$ and using Dual Balancing algorithm. These two plots show us some nice convergence behaviors. In the left figure, we choose initial inventory $x_0 = 0$ and plot net inventory for different leading times. In the left plot, we see no matter how larger our leading that is, at period $L+1$, i.e. the time we receive our period 1 order, the net inventory drop down a low level immediately. Although all net inventory are close to zero in long run, the larger leading time still leads to a slightly higher volume of net inventory. In the right figure, a fix $L = 5$ and change initial net inventory. If initial net inventory $x > 0$, it will support demands for some periods, and after consuming all initial net inventory, the absolute net inventory climbs up. However at $t=L=1$ we always have a stable net inventory closed to 0. And we can see the stabilized net inventory won't depend on $x_0$.\\
 
 \begin{center}
   \textbf{Long Term Cost/Demand Ratio}
