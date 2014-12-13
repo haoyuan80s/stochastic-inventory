@@ -238,18 +238,18 @@ These algorithms are important in industries where the demand environment is hig
   \captionof{figure}{Software Design Diagram}
   \includegraphics[width=3.0in]{software_diagram.png}
 \end{center}
-Our project aim is to implement the Dual Balancing Algorithm and test its performance for some major common demand distributions in this area. As in Fig. (?????), we divide our coding into several major part. The Parameter Data class save all the parameters for the problem, while its child class Policy contains all the informations for the algorithm, including, demand distribution type, distribution parameter, demand, ordering and cost for all time periods, and so on. The class Sample is in charge of organizing all functions, classes and collecting datas.\\
-Once the program start, we are read data from file and contruct a Sample class for each data set, the Sample class will construct a Policy class and updating the Policy class as the algorithm is called. We provide both Dual Balancing and Myopic for comparison. The main challenge of the project is to compute those conditional expectation in Eq. (\ref{eq:Bcost})(\ref{eq:MHcost})(\ref{eq:DB})) using the function ConditionalExp for some given distribution. After we get the conditional expectations, we can solve the minimization problem at current time $t$, then we recieve a random demand from RandomDemand and move on. After all the computation is finished, the Sample class will collect the datas and provide the output.
+Our aim is to implement Dual Balancing Algorithm and test its performance for some common demand distributions. We divide coding into several major parts. The Parameter Data class save parameters for the problem, while its child class Policy contains all the informations for the algorithm, including, demand distribution type, distribution parameter, demand, ordering and cost for all time periods, and so on. Class Sample is in charge of organizing all functions, classes and collecting datas.\\
+Once read data from input file, the program contruct a Sample class for each data set, the Sample class will construct a Policy class and updating the Policy class as the algorithm is called. We provide both Dual Balancing and Myopic for comparison. The main challenge is to compute those conditional expectation in Eq. (\ref{eq:Bcost})(\ref{eq:MHcost})(\ref{eq:DB})) using the function ConditionalExp for some given distribution. Once get the conditional expectations, we solve the minimization problem at current time $t$, then we receive a random demand from RandomDemand and move on. After all computation is finished, the Sample class will collect the data and provide the output.
 
 
 
 \section{Results}
 
-In following simulations:
+In simulations, we have following default setting without special mentioning:
 \begin{compactitem}
-      \item We always let $c_t = 3, h_t = 1, p_t = 2$.
-      \item Without specific mention, time horizon $T = 100, L = 5, x_0 = 0$.
-      \item The sample size is 20, and we do averages.
+      \item $c_t = 3, h_t = 1, p_t = 2$.
+      \item $T = 100, L = 5, x_0 = 0$.
+      \item The sample size are 20.
       \item We considered four different demands (i.e. $D_t$) distribution:\\
             1. $D_t = N(50,5)$ are iid.\\
             2. $D_t-D_{t-1} = N(5,1.581)$ with $D_0=30$.\\
@@ -262,7 +262,7 @@ In following simulations:
   \includegraphics[width=2.5in]{figures/DualBalancingParameters.png}
 \end{center}
 
-We pick $T=20,L=2,D_t=N(20,2,24)$ i.i.d. and compute using Dual Balancing. In the Fig. (???), we only show the result of one sample path. As you can see in Fig. (???), since the initial net inventory is 0 and $L=2$, the demand is going to accumulate and induce a nonzero holding cost. However, due to a large amount of ordering, the cost reduced a lot when the first ordering arrived at $t=L=2$. After that, the ordering stabilized and oscillate according to the change of $d_t$. The net inventory\footnote{Net inventory is computed by averaging absolute value of net inventory in each sample. Small net inventory indicates good police.} is also stabilize and oscillate around 0, this means the holding cost and backlogging cost are close to zero. Most of the cost are due to ordering and the cost curve is almost proportional to demand one.\\
+We pick $T=20,L=2,D_t=N(20,2,24)$ i.i.d. and compute using Dual Balancing. In the Fig. (???), we only show the result of one sample path. Since the initial net inventory is 0 and $L=2$, the demand is going to accumulate and induce a nonzero holding cost. However, due to a large amount of ordering at beginning, the cost reduced a lot when the first ordering arrived at $t=L=2$. After that, the ordering stabilized and oscillate according to the change of $d_t$. The net inventory\footnote{Net inventory is computed by averaging absolute value of net inventory in each sample. Small net inventory indicates good police.} is also stabilize and oscillate around 0. This means the holding cost and backlogging cost are close to zero. Most of the cost are due to ordering and the cost curve is almost proportional to demand one.\\
 Since, the demand include randomness, we will never be able to control our net inventory exactly at zero. Thus, Fig. (???) actually imply that the solution of Dual Balancing could be very close to the optimal solution.
 \subsection{Average Behavior}
 
@@ -280,6 +280,7 @@ In the right figure, a fix $L = 5$ and change initial net inventory. If initial 
   \captionof{figure}{Total Cost to Order Ratio: Independent Normal vs. Incrementing Normal Distribution}
   \includegraphics[width=2.8in]{figures/TotalCostToOrderRatio.png}
 \end{center}
+Another thing we interested in is whether Dual Balancing still perform very well as $T$ getting large. In Fig. (??), both curves plotted total cost over total demand for different distributions. We can see that, in the long run, the cost per demand converge to a center number and will not blow up. This imply in long run, the algorithm produced nice stability. Moreover, since our $c_t=3$, this ratio is at least 3, and you may see for normal increment, the ratio converge to exactly 3, so the Dual Balancing is almost optimal. 
 
 \subsection{Comparison to Myopic}
 \subsubsection{General Performance}
@@ -290,16 +291,7 @@ In the right figure, a fix $L = 5$ and change initial net inventory. If initial 
   \includegraphics[width=2.8in]{figures/key.png}
 \end{center}
 
-In figure(???), we notice that for all four kinds for demand distributions, the accumulative demands for both algorithm overlap on the green line and accumulative costs overlap on the purple line. This indicates that for all four kinds for demand distributions, under same demands distribution, the performance, measured by accumulative cost, of Dual Balancing algorithm and Myopic algorithm are almost exactly the same.\\
-In 2006 Zipkin's paper\cite{CLAcha1}, he shows that, in many cases, myopic algorithm works extremely well. Thus, fig(???) indicates a good behavior of Dual Balancing algorithm.
-
-%\begin{center}
-%  \captionof{figure}{}
-%  \includegraphics[width=3in]{figures/DemandAndNetInventory.png}
-%  \includegraphics[width=3in]{figures/key2.png}
-%\end{center}
-
-(as above, only need one)
+In Fig. (???), we compare the averaged sample pathes of the two appraoches. We notice that for all four kinds for demand distributions, the accumulative demands for both algorithm overlap on the green line and accumulative costs overlap on the purple line. This indicates that for all four kinds for demand distributions, under same demands distribution, the performance, measured by accumulative cost, of Dual Balancing and Myopic are almost exactly the same. In was shown earlier\cite{CLAcha1} that, in many cases, myopic algorithm works extremely well. Thus, Fig. (???) indicates a good performance of Dual Balancing algorithm.
 
 
  \subsubsection{Bad Example for Myopic} 
@@ -307,25 +299,29 @@ In 2006 Zipkin's paper\cite{CLAcha1}, he shows that, in many cases, myopic algor
   \captionof{figure}{\scriptsize Myopic vs. Dual-Balancing}
   \includegraphics[width=2.8in]{figures/MyopicBad.png}
 \end{center}
-  We consider the a periodic demand distribution: if $t\in \{0,20,40,60,...\}$, $D_t=N(20,?)$, otherwise, $D_t=0$.//
-  In fig (???), we simulates two of this periodic demand distribution.\\
-  In fig (???), we can see that at critical periods (i.e. $t\in \{0,20,40,60,...\}$), net inventory have a sudden jump for for both algorithms, but after the jump the net inventory produced by applying Dual Balancing algorithm drops down to a much low level than that produced by Myopic police.
+  In all following figures, we averaged the sample paths. As shown in Fig. (???), We consider the a periodic demand distribution: if $t\in \{0,20,40,60,...\}$, $D_t=N(20,3.16)$, otherwise, $D_t=0$.  In Fig. (???), we can see that at critical periods (i.e. $t\in \{0,20,40,60,...\}$), net inventory have a sudden jump for for both algorithms, but after the jump the net inventory produced by applying Dual Balancing drops down to a much low level than Myopic.
  \begin{center}
   \captionof{figure}{\scriptsize Myopic vs. Dual-Balancing: Ordering}
   \includegraphics[width=2.5in]{figures/MyopicBadOrderingWriteup.png}
   \end{center}
-  Fig(???) shows why Dual Balancing algorithm has a batter performance. Compared with Myopic algorithm, Dual Balancing algorithm is more conservative. Dual Balancing algorithm always orders less than Myopic algorithm on each critical period, which gives a higher expected cost on this critical period, but Dual Balancing algorithm has less leftover after critical period. One the long run, this give a Dual Balancing algorithm a lower average net inventory.
+  Fig(???) explains why Dual Balancing algorithm has this better performance. Comparing to Myopic, Dual Balancing algorithm always orders less than Myopic algorithm on each critical period, which gives a slightly higher expected backlogging cost on this critical period, but it successfully avoided possible holding cost during all the periods before next demand arrived 20 days later as we see in Fig. (???). Then in next period, dual balancing ordered a little bit to eliminate the backlogging cost. Then in following 18 periods, its cost is almost 0.
 
  \begin{center}
   \captionof{figure}{\scriptsize Myopic vs. Dual-Balancing: Accumulative Cost}
   \includegraphics[width=2.5in]{figures/MyopicBadAccumulativeCostWriteup.png}
   \end{center}
-  Fig(???) shows that Dual Balancing algorithm has a much less accumulative cost.
-%------------------------------------------------
+  As a result of the nice strategy, Fig. (???) tells us that in this case, the Myopic is about 5 times the total cost of Dual Balancing in the long run. In fact, it could be prove that the Myopic could be $K$ times the optimal cost where $K$ is the period of demand.
+  %------------------------------------------------
 
 \section{Conclusion}
 
-\lipsum[7] % Dummy text
+In this paper, we have shown that, the Dual Balancing algorithm present very nice behavior, like converge to equilibrium very quickly, solution is almost optimal, very stable as $T$ increase and so on. The Dual Balancing performs as good as Myopic for all the cases tried, especially, for rapid change periodical demand, Dual Balancing performs much better then Myopic.\\
+There are some other interesting problems about implementation in this area to be work on, like simulate dynamic programming and compare the performance to Dual Balancing, simulate continuous time control problem. 
+
+\section{Contributions}
+In our Project, Hao and Feng did most of the C++ coding job, while Blake did the R coding part. Hao is the one who introduced us this interesting problem and organized meetings. Feng structured the C++ code and collected all the data. All the nice figures in this paper are work of Blake, he also provided very strong technical support in latex. 
+
+%\lipsum[7] % Dummy text
 
 %----------------------------------------------------------------------------------------
 %	REFERENCE LIST
