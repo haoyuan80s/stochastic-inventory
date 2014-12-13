@@ -119,18 +119,8 @@ Blake Miller
 
 \section{Introduction}
 
-\lettrine[nindent=0em,lines=2]{P}roper inventory management, stocking, and purchasing policy are paramount to supply, distribution, and retail businesses. The challenges of minimizing costs in an environment dependent upon many stochastic processes presents businesses with a unique challenge. This problem is important for any company that seeks to minimize cost of holding excess inventory while minimizing backorder costs (unmet demand). This is difficult because:
-  \begin{compactitem}
-    \item Oftentimes demand and lead times (time between order and receipt of product) are unpredictable.
-    \item Inaccuracies can be extremely costly, so it is important that approximations are provably accurate within a certain range of error
-  \end{compactitem}
-It is also difficult to develop an approximation algorithm that is appropriate to the risk profile of companies operating under dynamic demand environments. This is because these companies must determine whether the provable error margin of an approximation algorithm is appropriate for their own risk profile. Computing a provably efficient inventory control policies is difficult because:
-  \begin{compactitem}
-    \item demand per time-period is correlated
-    \item demand is non-stationary (time-dependent, distribution changes with time)
-    \item cost is hard to predict due to the nature of demand
-  \end{compactitem}
-These algorithms are important in industries where the demand environment is highly dynamic. (i.e. Apple's supply-chain for solid state drives, seasonal products such as rock salt). These environments experience high correlation between demands in different periods (difficult to compute optimal inventory policy)
+\lettrine[nindent=0em,lines=2]{P}roper inventory management, stocking, and purchasing policy are paramount to supply, distribution, and retail businesses. The challenges of minimizing costs in an environment dependent upon many stochastic processes presents businesses with a unique challenge. This problem is important for any company that seeks to minimize cost of holding excess inventory while minimizing backorder costs (unmet demand). Especially in industries where the demand environment is highly dynamic. (i.e. Apple's supply-chain for solid state drives, seasonal products such as rock salt). \\
+The inventory control problem is very difficult because oftentimes demand are unpredictable and cost is hard to predict due to the nature of demand. It is even very difficult to develop an approximation algorithm that is appropriate to the risk profile of companies operating under dynamic demand environments. This is because these companies must determine whether the provable error margin of an approximation algorithm is appropriate for their own risk profile. In this paper, we will investigate the performance a new algorithm\cite{CLAcha2} for the inventory control problem using C++ implementation.\\
 
 %------------------------------------------------
 
@@ -149,12 +139,12 @@ These algorithms are important in industries where the demand environment is hig
     \end{equation}
         where 
     \begin{compactitem}
-      \item $c_t$: per-unit ordering cost at time $t$.
-      \item $h_t$: per-unit holding cost from $t$ to $t + 1$.
-      \item $p_t$: per-unit backlogging penalty at time $t$.
-      \item $x_t$: net inventory at time $t$. (our state)
-      \item $q_t$: ordering quantity at time $t$. (our control)
-      \item $d_t$: demand quantity at time $t$. (we observe $d_t$ after decide $q_t$)
+      \item $c_t$: per-unit ordering cost.
+      \item $h_t$: per-unit holding cost.
+      \item $p_t$: per-unit backlogging penalty.
+      \item $x_t$: net inventory (state).
+      \item $q_t$: ordering quantity (control).
+      \item $d_t$: demand quantity (we observe $d_t$ after decide $q_t$).
     \end{compactitem}
 
     In Eq. (\ref{eq:Ldef}), $x_t + q_t - d_t$ is the net inventory at the end of period $t$, if it is positive, we will suffer from a holding cost $h_t(x_t + q_t - d_t)^{+}$, otherwise there will be backlogging cost $p_t(x_t + q_t - d_t)^{-}$. Together with the ordering cost $c_tq_t$, we define $L_t(x_t,d_t,q_t)$ to be our Local Cost at time $t$, i.e. Local Cost = Ordering Cost + Holding Cost + Backlogging Cost.\\
@@ -238,7 +228,7 @@ These algorithms are important in industries where the demand environment is hig
   \captionof{figure}{Software Design Diagram}
   \includegraphics[width=3.0in]{software_diagram.png}
 \end{center}
-Our aim is to implement Dual Balancing Algorithm and test its performance for some common demand distributions. We divide coding into several major parts. The Parameter Data class save parameters for the problem, while its child class Policy contains all the informations for the algorithm, including, demand distribution type, distribution parameter, demand, ordering and cost for all time periods, and so on. Class Sample is in charge of organizing all functions, classes and collecting datas.\\
+Our aim is to implement Dual Balancing Algorithm and test its performance for some common demand distributions. We divide coding into several major parts. The Parameter Data class save parameters for the problem, while its child class Policy contains all the informations for the algorithm, including, demand distribution type, distribution parameter, demand, ordering and cost for all time periods, and so on. Class Sample is in charge of organizing all functions, classes and collecting data.\\
 Once read data from input file, the program contruct a Sample class for each data set, the Sample class will construct a Policy class and updating the Policy class as the algorithm is called. We provide both Dual Balancing and Myopic for comparison. The main challenge is to compute those conditional expectation in Eq. (\ref{eq:Bcost})(\ref{eq:MHcost})(\ref{eq:DB})) using the function ConditionalExp for some given distribution. Once get the conditional expectations, we solve the minimization problem at current time $t$, then we receive a random demand from RandomDemand and move on. After all computation is finished, the Sample class will collect the data and provide the output.
 
 
