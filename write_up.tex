@@ -23,7 +23,6 @@
 \usepackage{stackengine}
 \usepackage{mathtools}
 \usepackage{graphicx}
-
 \renewcommand\useanchorwidth{T}
 \usepackage{xcolor}
 \def\theyearwidth{1.5pt}
@@ -78,6 +77,7 @@
 \fancyfoot{} % Blank out the default footer
 \fancyhead[C]{Approximation Algorithms for Stochastic Inventory Control Models $\bullet$ \ddmmyyyydate\today } % Custom header text
 \fancyfoot[RO,LE]{\thepage} % Custom footer text
+
 
 %----------------------------------------------------------------------------------------
 %	TITLE SECTION
@@ -235,6 +235,7 @@ These algorithms are important in industries where the demand environment is hig
 %\end{figure}
 
 \begin{center}
+  \captionof{figure}{Software Design Diagram}
   \includegraphics[width=3.0in]{software_diagram.png}
 \end{center}
 Our project aim is to implement the Dual Balancing Algorithm and test its performance for some major common demand distributions in this area. As in Fig. (?????), we divide our coding into several major part. The Parameter Data class save all the parameters for the problem, while its child class Policy contains all the informations for the algorithm, including, demand distribution type, distribution parameter, demand, ordering and cost for all time periods, and so on. The class Sample is in charge of organizing all functions, classes and collecting datas.\\
@@ -256,55 +257,69 @@ In following simulations:
             4. $D_t- (D_{t-1} + D_{t-2} + D_{t-3})/3 = N(5,1.581)$ with $D_0=30$.
 \end{compactitem}
 \subsection{Single sample path behavior}
+\begin{center}
+  \captionof{figure}{Dual Balancing Parameters}
   \includegraphics[width=2.5in]{figures/DualBalancingParameters.png}
+\end{center}
 
 We pick $T=20,L=2,D_t=N(20,2,24)$ i.i.d. and compute using Dual Balancing. In the Fig. (???), we only show the result of one sample path. As you can see in Fig. (???), since the initial net inventory is 0 and $L=2$, the demand is going to accumulate and induce a nonzero holding cost. However, due to a large amount of ordering, the cost reduced a lot when the first ordering arrived at $t=L=2$. After that, the ordering stabilized and oscillate according to the change of $d_t$. The net inventory\footnote{Net inventory is computed by averaging absolute value of net inventory in each sample. Small net inventory indicates good police.} is also stabilize and oscillate around 0, this means the holding cost and backlogging cost are close to zero. Most of the cost are due to ordering and the cost curve is almost proportional to demand one.\\
 Since, the demand include randomness, we will never be able to control our net inventory exactly at zero. Thus, Fig. (???) actually imply that the solution of Dual Balancing could be very close to the optimal solution.
 \subsection{Average Behavior}
 
 \subsubsection{Stabilize Speed}
+\begin{center}
+  \captionof{figure}{\small Stabilization Across Different Initial Values of Net Inventory and Lead Time}
+  \includegraphics[width=2.8in]{figures/NetInventoryLeadTime.png}
+\end{center}
 
-  \includegraphics[width=1.5in]{figures/LeadTime.png}
-  \includegraphics[width=1.5in]{figures/NetInventory.png}
-
-For Fig(???), we fix $T=30, D_t=??$ and using Dual Balancing algorithm. In the left figure, we choose initial inventory $x_0 = 0$ and plot net inventory for different leading times. It is clear that larger leading time leads to a higher volume of net inventory. However, no matter how larger our leading that is, at period $L+1$, i.e. the time we receive our period 1 order, the net inventory drop down a low level immediately.\\
+For Fig. \ref{figure:blah}, we fix $T=30, D_t=??$ and using Dual Balancing algorithm. In the left figure, we choose initial inventory $x_0 = 0$ and plot net inventory for different leading times. It is clear that larger leading time leads to a higher volume of net inventory. However, no matter how larger our leading that is, at period $L+1$, i.e. the time we receive our period 1 order, the net inventory drop down a low level immediately.\\
 In the right figure, a fix $L = 5$ and change initial net inventory. If initial net inventory $x > 0$, it will support demands for some periods, and after consuming all initial net inventory, the absolute net inventory climbs up until period $L+1$, then we have a stable net inventory closed to 0.\\
 
 \subsubsection{Long Term Cost/Demand Ratio}
-
-  \includegraphics[width=2.5in]{figures/TotalCostToOrderRatio.png}
+\begin{center}
+  \captionof{figure}{Total Cost to Order Ratio: Independent Normal vs. Incrementing Normal Distribution}
+  \includegraphics[width=2.8in]{figures/TotalCostToOrderRatio.png}
+\end{center}
 
 \subsection{Comparison to Myopic}
 \subsubsection{General Performance}
 
-  \includegraphics[width=1.5in]{figures/AccumulativeDemandAndCost_Normal.png}
-  \includegraphics[width=1.5in]{figures/AccumulativeDemandAndCost_Binomial.png}
-  \includegraphics[width=1.5in]{figures/AccumulativeDemandAndCost_Brownian.png}
-  \includegraphics[width=1.5in]{figures/AccumulativeDemandAndCost_Markov.png}
-  \includegraphics[width=2.5in]{figures/key.png}
+\begin{center}
+  \captionof{figure}{\scriptsize Accumulative Demand and Accumulative Cost}
+  \includegraphics[width=2.8in]{figures/AccumulativeDemandAndCost.png}
+  \includegraphics[width=2.8in]{figures/key.png}
+\end{center}
 
 In figure(???), we notice that for all four kinds for demand distributions, the accumulative demands for both algorithm overlap on the green line and accumulative costs overlap on the purple line. This indicates that for all four kinds for demand distributions, under same demands distribution, the performance, measured by accumulative cost, of Dual Balancing algorithm and Myopic algorithm are almost exactly the same.\\
 In 2006 Zipkin's paper\cite{CLAcha1}, he shows that, in many cases, myopic algorithm works extremely well. Thus, fig(???) indicates a good behavior of Dual Balancing algorithm.
 
-  \includegraphics[width=1.5in]{figures/DemandAndNetInventory_Binomial.png}
-  \includegraphics[width=1.5in]{figures/DemandAndNetInventory_Normal.png}
-  \includegraphics[width=1.5in]{figures/DemandAndNetInventory_Brownian.png}
-  \includegraphics[width=1.5in]{figures/DemandAndNetInventory_Markov.png}
-  \includegraphics[width=2.5in]{figures/key2.png}
+%\begin{center}
+%  \captionof{figure}{}
+%  \includegraphics[width=3in]{figures/DemandAndNetInventory.png}
+%  \includegraphics[width=3in]{figures/key2.png}
+%\end{center}
 
 (as above, only need one)
 
 
  \subsubsection{Bad Example for Myopic} 
-  \includegraphics[width=1.5in]{figures/MyopicBadDemand.png}
-  \includegraphics[width=1.5in]{figures/MyopicBadNetInventory.png}
+ \begin{center}
+  \captionof{figure}{\scriptsize Myopic vs. Dual-Balancing}
+  \includegraphics[width=2.8in]{figures/MyopicBad.png}
+\end{center}
   We consider the a periodic demand distribution: if $t\in \{0,20,40,60,...\}$, $D_t=N(20,?)$, otherwise, $D_t=0$.//
   In fig (???), we simulates two of this periodic demand distribution.\\
   In fig (???), we can see that at critical periods (i.e. $t\in \{0,20,40,60,...\}$), net inventory have a sudden jump for for both algorithms, but after the jump the net inventory produced by applying Dual Balancing algorithm drops down to a much low level than that produced by Myopic police.
-  \includegraphics[width=2.5in]{figures/MyopicBadOrdering.png}
+ \begin{center}
+  \captionof{figure}{\scriptsize Myopic vs. Dual-Balancing: Ordering}
+  \includegraphics[width=2.5in]{figures/MyopicBadOrderingWriteup.png}
+  \end{center}
   Fig(???) shows why Dual Balancing algorithm has a batter performance. Compared with Myopic algorithm, Dual Balancing algorithm is more conservative. Dual Balancing algorithm always orders less than Myopic algorithm on each critical period, which gives a higher expected cost on this critical period, but Dual Balancing algorithm has less leftover after critical period. One the long run, this give a Dual Balancing algorithm a lower average net inventory.
 
-  \includegraphics[width=2.5in]{figures/MyopicBadAccumulativeCost.png}
+ \begin{center}
+  \captionof{figure}{\scriptsize Myopic vs. Dual-Balancing: Accumulative Cost}
+  \includegraphics[width=2.5in]{figures/MyopicBadAccumulativeCostWriteup.png}
+  \end{center}
   Fig(???) shows that Dual Balancing algorithm has a much less accumulative cost.
 %------------------------------------------------
 
