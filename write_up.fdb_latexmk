@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1418490464 "write_up.tex" "write_up.pdf" "write_up" 1418490759
+["pdflatex"] 1418492779 "write_up.tex" "write_up.pdf" "write_up" 1418492782
   "/usr/local/texlive/2014/texmf-dist/tex/context/base/supp-pdf.mkii" 1337017135 71627 94eb9990bed73c364d7f53f960cc8c5b ""
   "/usr/local/texlive/2014/texmf-dist/tex/generic/ifxetex/ifxetex.sty" 1284331290 1458 43ab4710dc82f3edeabecd0d099626b2 ""
   "/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/gettitlestring.sty" 1303254447 8237 52810bdb4db2270e717422560a104aea ""
@@ -86,11 +86,11 @@
   "figures/TotalCostToOrderRatio.png" 1418489234 47179 a49490dde5665aee5eaa5c4f0c23e2bb ""
   "figures/key.png" 1418249475 23853 0824a6f29f6eb477697faafd76810931 ""
   "software_diagram.png" 1418249475 27460 59602355f48646b171f61aa5a05d51bc ""
-  "write_up.aux" 1418490467 4347 176db1c8fc766f5cf0b8e34fb460cfe4 ""
-  "write_up.out" 1418490467 868 58453beac630bc33e2f2ffbc7bd200b2 ""
-  "write_up.tex" 1418490461 21629 4d176a5bad0cdd8274f2daaaf20fad16 ""
+  "write_up.aux" 1418492781 4340 28ab51e334ccbad9b2d369cc8a458483 ""
+  "write_up.out" 1418492781 389 0f177c80c3422d6a8ce5d4bebcdf718a ""
+  "write_up.tex" 1418492776 22474 6b450aea59b1321d35e66e0e0d9d3bdc ""
   (generated)
-  "write_up.aux"
   "write_up.log"
   "write_up.pdf"
+  "write_up.aux"
   "write_up.out"
