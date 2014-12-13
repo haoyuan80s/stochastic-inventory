@@ -1,5 +1,5 @@
 # Fdb version 3
-["pdflatex"] 1418490464 "write_up.tex" "write_up.pdf" "write_up" 1418490467
+["pdflatex"] 1418490464 "write_up.tex" "write_up.pdf" "write_up" 1418490759
   "/usr/local/texlive/2014/texmf-dist/tex/context/base/supp-pdf.mkii" 1337017135 71627 94eb9990bed73c364d7f53f960cc8c5b ""
   "/usr/local/texlive/2014/texmf-dist/tex/generic/ifxetex/ifxetex.sty" 1284331290 1458 43ab4710dc82f3edeabecd0d099626b2 ""
   "/usr/local/texlive/2014/texmf-dist/tex/generic/oberdiek/gettitlestring.sty" 1303254447 8237 52810bdb4db2270e717422560a104aea ""
@@ -90,7 +90,7 @@
   "write_up.out" 1418490467 868 58453beac630bc33e2f2ffbc7bd200b2 ""
   "write_up.tex" 1418490461 21629 4d176a5bad0cdd8274f2daaaf20fad16 ""
   (generated)
-  "write_up.log"
   "write_up.aux"
-  "write_up.out"
+  "write_up.log"
   "write_up.pdf"
+  "write_up.out"
